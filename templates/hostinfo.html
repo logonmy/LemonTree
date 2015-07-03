@@ -20,19 +20,20 @@ $var osname: $host
     </div>
     <div class="col-xs-9">
         $for each_citype in citype: 
-            <h2 id="$each_citype["FAMILY_ID"]">$each_citype["DISPLAYNAME"]</h2>
+            <h2 id="$each_citype["FAMILY_ID"]" class="text-success">$each_citype["DISPLAYNAME"]</h2>
             $if each_citype["FAMILY_ID"] in ci:
                 $for each_ci in ci[each_citype["FAMILY_ID"]]:
                     $ cilist = cilist + ";" + each_ci["TARGET_FID"]
                     <!--<table id="$each_ci["TARGET_FID"]" class="table table-striped table-bordered" 
                         cellspacing="0" width="100%">-->
-                    <table id="$each_ci["TARGET_FID"]" class="table table-bordered" 
+                    <table id="$each_ci["TARGET_FID"]" class="table table-striped" 
                         cellspacing="0" width="100%">
                         <thead>
                             <tr>
                                 <th>属  性</th>
                                 <th>属性值</th>
                                 <th>描  述</th>
+                                <th>CI NAME</th>
                             </tr>
                         </thead>
                     </table>
