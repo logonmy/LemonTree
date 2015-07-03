@@ -1,0 +1,106 @@
+﻿$def with (content)
+
+<!DOCTYPE html>
+<!--该页面为模板页面：包括导航栏和左侧分类功能区域-->
+<html>
+<head>
+    <title>$content.title</title>
+    <meta name="viewport" http-equiv="Content-type"
+    	content="text/html ;charset = utf-8" />
+    <!--加载的CSS文件-->
+    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./static/css/dataTables.bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./static/css/dataTables.tableTools.css">
+    <link rel="stylesheet" type="text/css" href="./static/css/editor.bootstrap.css">
+    <!--加载的JS文件-->
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/bootstrap.js"></script>
+    <script src="../static/js/jquery.dataTables.js"></script>
+    <script src="../static/js/dataTables.bootstrap.js"></script>
+    <!--这里的$content.script指出页面需要加载的js文件名-->
+    <script src="../static/jquery/$content.script"></script>
+</head>
+<body>
+    <!-- 页面底层导航栏 -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">CMDB</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav navbar-left">
+                <li class="active"><a href="#" class="dropdown-toggle"
+                    data-toggle="dropdown">主机<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="./index.php">主机列表</a></li>
+                        <li><a href="./host/addserver.php">新增主机</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">基线列表</a></li>
+                        <li><a href="#">新增基线</a></li>
+                    </ul></li>
+                <li><a href="#">应用</a></li>
+            </ul>
+        </div>
+        <div>
+            <form class="navbar-form navbar-left" role="search"
+                stype="margin-right:10px;">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">查询</button>
+            </form>
+        </div>
+    </nav>
+
+    <!-- 页标题 -->
+    <div class="row-fluid">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h1>主机配置信息</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面功能区域 -->
+    <div class="row-fluid">
+        <!-- 页面左侧查询及分类功能区域 -->
+        <div class="col-md-3">
+            <!-- 左侧：查询输入框 -->
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name"
+                            placeholder="例如：config1">
+                    </div>
+                    <button type="submit" class="btn btn-default col-sm-2">查询</button>
+                </div>
+            </form>
+            <hr />
+            
+            <!-- 左侧：分类导航（数据中心） -->
+            <div class="panel-group" id="accordion">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion"
+                           href="#accordion-element-10001">数据中心</a>
+                    </div>
+                    <div id="accordion-element-20001" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <p><a href="#">外高桥数据中心</a></p>
+                            <p><a href="#">张江数据中心</a></p>
+                            <p><a href="#">金桥托管机房</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 左侧：分类导航（网络区域） -->
+            
+        </div>
+
+        <!-- 页面右侧显示功能区域 -->
+        <div class="col-md-8">
+            <!--调用具体实现的页面-->
+            $:content
+        </div>
+
+</body>
+</html>
