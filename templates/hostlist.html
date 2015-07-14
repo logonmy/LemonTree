@@ -1,0 +1,38 @@
+<!-- 必须输入项 -->
+$var title: 主机列表
+$var script: hostlist.js
+$var header: 主机列表
+
+<!-- 可选输入项 -->
+
+
+<!-- 页面conten内容 -->
+<div class="row">
+    <p class="text-left">自定义显示列: 
+    <a class="toggle-vis" data-column="0">主机名</a> - 
+    <a class="toggle-vis" data-column="1">内核版本</a> - 
+    <a class="toggle-vis" data-column="2">描述</a></p>
+    <table id="allhostlist" class="table table-bordered" 
+                        cellspacing="0" width="100%">
+        <thead>
+            <tr class="active">
+                <th width="21%">主机名</></th>
+                <th width="21%">内核版本</th>
+                <th>描  述</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr >
+                <th width="21%">config1</th>
+                <th width="21%">2.6.31</th>
+                <th>外高桥堡垒机</th>
+            </tr>
+            <tr >
+                <th width="21%">bizdb1</th>
+                <th width="21%">11.31</th>
+                <th>生产数据库</th>
+            </tr>
+        </tbody>
+    </table>
+    123
+</div>

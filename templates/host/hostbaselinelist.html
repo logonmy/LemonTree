@@ -1,0 +1,38 @@
+﻿<!-- 必须输入项 -->
+$var title: 主机基线列表
+$var script: hostbaselinelist.js
+$var header: 基线列表
+
+<!-- 可选输入项 -->
+
+
+<!-- 页面conten内容 -->
+<div class="row">
+    <p class="text-left">自定义显示列: 
+    <a class="toggle-vis" data-column="0">基线名</a> - 
+    <a class="toggle-vis" data-column="1">基线类型</a> - 
+    <a class="toggle-vis" data-column="2">操作系统</a></p>
+    <table id="allhostlist" class="table table-bordered" 
+                        cellspacing="0" width="100%">
+        <thead>
+            <tr class="active">
+                <th width="21%">基线名</></th>
+                <th width="21%">基线类型</th>
+                <th>操作系统</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr >
+                <th width="21%">os_linux6.3</th>
+                <th width="21%">主机基线</th>
+                <th>Linux6.3_x86</th>
+            </tr>
+            <tr >
+                <th width="21%">se_linux5.5</th>
+                <th width="21%">安全基线</th>
+                <th>Linux5.5_x86</th>
+            </tr>
+        </tbody>
+    </table>
+</div>
+

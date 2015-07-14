@@ -5,9 +5,13 @@ import httplib, urllib
 import json
 
 urls = (
-        '/index', 'index',
-        '/hostinfo', 'hostinfo',
-        '/getci', 'ajax_getci'
+        '/index'            ,'index',
+        '/hostinfo'         ,'hostinfo',
+        '/hostlist'         ,'hostlist',
+        '/hostbaselinelist' ,'hostbaselinelist',
+        '/addhost'          ,'addhost',
+        '/ajax_gethostlist' ,'ajax_gethostlist',
+        '/ajax_getci'       ,'ajax_getci',
        )
 
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
@@ -20,7 +24,6 @@ class index:
     def GET(self):
         name = None
         render = web.template.render('templates/', base='layout')
-        #a = web.input(name = None)
         return render.index(name)
      
     def POST(self):
@@ -29,7 +32,7 @@ class index:
 class hostinfo:
     def GET(self):
         server = web.input(host = "slave1")     #页面url中传入的参数：主机名
-        render = web.template.render('templates/', base='layout_info')
+        render = web.template.render('templates/host/', base='layout_info')
         if server is None:
             return render.hostinfo()
         
@@ -77,6 +80,27 @@ class hostinfo:
     def POST(self):
         pass
     
+class hostlist:
+    def GET(self):
+        render = web.template.render('templates/host/', base='layout')
+        return render.hostlist()
+        
+    def POST(self):
+        pass
+
+class hostbaselinelist:
+    def GET(self):
+        render = web.template.render('templates/host/', base='layout')
+        return render.hostbaselinelist()
+    
+    def POST(self):
+        pass
+    
+class addhost:
+    def GET(self):
+        render = web.template.render('templates/host/', base='layout_info')
+        return render.addhost()
+
 class ajax_getci:
     def GET(self):
         result = web.input(cifid = None)
@@ -86,6 +110,37 @@ class ajax_getci:
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
         return data
+    
+class ajax_gethostlist:
+    def GET(self):
+        conn  =  HttpConnectionInit()
+        #返回主机所有CI TYPE
+        url_citype = "/ci?citype_name=HOST_OS"
+        conn.request(method = "GET",url = url_citype)
+        formatdata = json.loads(conn.getresponse().read())
+        
+        list_host = []                      #OS列表，保存所有主机
+        #获取所有主机列表，每个OS信息对应一个字典
+        for ci in formatdata:
+            temp_dict = {}
+            if ci["DESCRIPTION"] is None:
+                temp_dict["DESCRIPTION"] = ""
+            else:
+                temp_dict["DESCRIPTION"] = ci["DESCRIPTION"].encode('utf-8')
+            
+            cifid = ci["FAMILY_ID"].encode('utf-8')
+            url_ciattr = "/ciattr?ci_fid=" + cifid
+            conn.request(method="GET", url = url_ciattr)
+            data_ciattr = json.loads(conn.getresponse().read())
+            #遍历OS的所有属性，将所有属性保存为key-value形式
+            for eachattr in data_ciattr:
+                temp_dict[eachattr["CIAT_NAME"].encode('utf-8')] = eachattr["VALUE"].encode('utf-8')
+                
+            list_host.append(temp_dict)
+        
+        HttpConnectionClose(conn)    
+        return json.dumps(list_host, indent = 4,ensure_ascii=False, separators = (',',':'))
+        
  
 if __name__ == "__main__":
     app = web.application(urls, globals())
