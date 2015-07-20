@@ -62,42 +62,19 @@ $var cssfiles: ystep.css
                 <div class="col-md-1 col-md-offset-2">
                     <button href="#step2" id="buttonswitch"  class="btn btn-info" 
                         onclick="gotostep2()"> 下一步 </button> 
+                    <button id="addos"  class="btn btn-info" 
+                        onclick="creat_host_ci()"> 创建HOST </button> 
                 </div>
             </div>
         </div>
         
         <!-- 填写用户配置,step2 -->
-        <div class="tab-pane fade col-md-10 col-md-offset-1 "
+        <div class="tab-pane fade col-md-12 "
               style="margin-top:0%;position:relative;" id="step2">
             <div class="input-group  col-md-12 " style="margin-top:0%;position:relative;">
                 <h3>步骤二: 用户配置</h3>
                 <div class="panel-group" id="defaultuser">
-                	  <div class="col-md-12"  style="display:none" id="add_user_div">
-                	  
-                    	  <table  class="table table-bordered" id="add_user_table"
-                                cellspacing="0" width="100%" >
-                            <thead>
-                                <tr class="active">
-                                    <th>属性名称</th>
-                                    <th>属性值</th>
-                                    <th>描  述</th>
-                                    <th>属主 </th>
-                                </tr>
-                                 </thead>
-                                <tr>
-                                    <td >用户名</td>
-                                    <td><input type="text" id="user_name" class="form-control"></td>
-                                    <td><input type="text" class="form-control"></td>
-                                    <td><input type="text" class="form-control"></td>
-                                </tr>
-            
-                            
-                        </table>
-                        <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
-                        <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
-                      <hr/>
-                    </div>
-                	  </div>
+                	  <!--</div>-->
                     <div class="panel-heading">
                         <input type="button" value="点击添加用户" onclick="show_detail('adduser')" class="btn btn-default" style="float:right">
                     </div>
@@ -114,8 +91,29 @@ $var cssfiles: ystep.css
                         </thead>
                         </table>
                     </div>
+                    <hr/>
+                    <div class="col-md-12"  style="display:none" id="add_user_div">
+                        <table  class="table table-bordered" id="add_user_table"
+                                cellspacing="0" width="100%" >
+                            <tr class="active">
+                                <th>属性名称</th>
+                                <th>属性值</th>
+                                <th>描  述</th>
+                                <th>属  主</th>
+                            </tr>
+                            <tr>
+                                <td>用户名</td>
+                                <td><input type="text" id="user_name" class="form-control"></td>
+                                <td><input type="text" class="form-control"></td>
+                                <td><input type="text" class="form-control"></td>
+                            </tr>
+                            
+                        </table>
+                        <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
+                        <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
+                    </div>
                 </div>
-            
+            </div>
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
                     <button href="#step1" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 

@@ -9,55 +9,21 @@ var adduser_or_showuser = "";//来判断按钮是新增还是展示
 var new_user_attr = new Object();//保存新增用户的属性
 var new_user_ci = new Object();
 var table_added ="";
-//
-//function creat_host_ci(obj){
-//	
-//    //step1新建主机ci   
-//    var step1_hostname = document.getElementById("step1_host_name").value;
-//    var step1_description = document.getElementById("step1_description").value;
-//    var url = "/ci?name="+ step1_hostname +"&ci_type_fid=FCIT00000001&decription=" + step1_description;
-//    array_url.push(url);
-//    array_url.push("123");
-//    $.post(url,function(data){alert(data);})
-//    
-//    //step1新建主机ci属性
-//    
-//    alert(step1_description);
-//    //url = "http://192.168.1.3:8080/ciattr?ci_fid=FCID00000072&ci_attrtype_fid=FCAT00000002&value=slave_test_20150714";
-//    //$.post(url,function(data){alert (data);})
-//    //step1新建主机ci属性
-//    
-//    
-//    
-//    //step2新建主机用户(在用户属性里有修改的时候)
-//    //1.新建用户ci
-//    url = "http://192.168.1.3:8080/ci?name=imonitor&ci_type_fid=FCIT00000007&priority=1000"; //有个优先级
-//    //$.post(url,function(data){alert(data);})
-//    //2.新建用户下，新建被修改的属性
-//    url = http://192.168.1.3:8080/ciattr?ci_fid=对应ci的fid&ci_attrtype_fid=ci属性的faid&value=属性值";
-//     //$.post(url,function(data){alert(data);})
-//    //3.新建用户 与 step1新建的主机做relation
-//    url =" http://192.168.1.3:8080/cirela?source_name="+ source_name + "&target_name=" + target_name ;
-//    //4.原有用户 与 step1新建的主机做relation
-//    url =" http://192.168.1.3:8080/cirela?source_name="+ source_name + "&target_name=" + target_name ;
-//    //step2新建主机用户(在用户属性里有修改的时候)
-//    
-//    //step2新建主机用户(用户属性不修改，仅建立relation)
-//    url = "http://192.168.1.3:8080/cirela?source_name="+ source_name + "&target_name=" + target_name ;
-//    $.post(url,function(data){alert(data);})
-//    //step2新建主机用户(用户属性不修改，仅建立relation)
-//    
-//
-//    
-//    //step4
-//    
-//}    
 
-function new_baseline(tmp){
-    var str = "<table><tr><td>"+ tmp+"<td></tr></table>";
-    $("#baseline_container").append(str);
+var commit_os = new Array();
+var commit_user = new Array();
+var commit_user_attr = new Array()();
+var commit_baseline = new Array();
 
- }
+
+function creat_host_ci(obj){
+    //step1新建主机ci   
+    var step1_hostname = document.getElementById("step1_host_name").value;
+    var step1_description = document.getElementById("step1_description").value;
+    var url = "/ajax_post_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001&description=" + step1_description;
+    alert(url);
+}
+
 function cancel_add_user(){
 	  
    	$("#add_user_div :input").each(function () { 
@@ -65,12 +31,6 @@ function cancel_add_user(){
     })
     $("#add_user_div").hide();
 }
-function addkernel(){
-    var tmpstr = "<div class=\"input-group col-md-12\"> <font style=\"font-size:20px\">"+
-                 "内核参数</font> <input type=\"text\" style=\"width:100%\"></div>";
-    //alert(tmpstr);
-    $("#AdvancedKernel").append(tmpstr);
-  }
 
 $(function(){
     $("#chkbx_host").change(function() {
@@ -111,11 +71,10 @@ function gotostep2()
             "bSort": false, //排序功能
             "bInfo": false ,//页脚信息
             "ajax" : {
-                "url" : "/ajax_getosuser_baseline",
+                "url" : "/ajax_get_baseline_osuser",
                 "dataSrc" : "",
                 "async" : false, 
                 "bDeferRender": true
-                
             },
             "aoColumns": [
                  { "data": "NAME"},
@@ -243,6 +202,7 @@ function show_detail(obj){
     }
   
 }
+
 function adduser()
 {
     //alert($("#FCAT00000027").id()); $("#modal-userattr input[type=text]")
@@ -253,28 +213,25 @@ function adduser()
    //alert(list[0].id);
    // alert(user_attr_list['FCAT00000118']);
    
-   var username = $("#user_name").val();
-   var userdescription = $("#user_description").val();  
-   new_user_ci[username] = new Array();
-   new_user_ci[username][0] =  userdescription;
-   new_user_attr[username] = new Array();
-   for (var i = 0 ; i < user_attr.length-1 ; i++){
-   	   new_user_attr[username][i] = new Array();
-       new_user_attr[username][i][0] = user_attr[i]["FAMILY_ID"];
-       var fid = user_attr[i]["FAMILY_ID"];
-       new_user_attr[username][i][1] = $("#"+fid).val();
-       new_user_attr[username][i][2] = $("#description_"+fid).val();
-       new_user_attr[username][i][2] = $("#owner_"+fid).val();
-       new_user_attr[username][i][4] = user_attr[i]["NAME"];
-   }
-   
+    var username = $("#user_name").val();
+    var userdescription = $("#user_description").val();  
+    new_user_ci[username] = new Array();
+    new_user_ci[username][0] =  userdescription;
+    new_user_attr[username] = new Array();
+    for (var i = 0 ; i < user_attr.length-1 ; i++){
+        new_user_attr[username][i] = new Array();
+        new_user_attr[username][i][0] = user_attr[i]["FAMILY_ID"];
+        var fid = user_attr[i]["FAMILY_ID"];
+        new_user_attr[username][i][1] = $("#"+fid).val();
+        new_user_attr[username][i][2] = $("#description_"+fid).val();
+        new_user_attr[username][i][2] = $("#owner_"+fid).val();
+        new_user_attr[username][i][4] = user_attr[i]["NAME"];
+    }
+    var html = "<tr><td>Add</td><td>"+ username +"</td><td>"+ userdescription +"</td><td><button type=\"button\" " +
+               " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";   
+    $("#baselineuserlist").append(html);
 
-
-       var html = "<tr><td>Add</td><td>"+ username +"</td><td>"+ userdescription +"</td><td><button type=\"button\" " +
-                  " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";   
-       $("#baselineuserlist").append(html);
-
-   	///把表格收起来
+   	//表格隐藏
    	$("#add_user_div").hide();
    	$("#add_user_div :input").each(function () { 
         $(this).val(""); 
@@ -298,15 +255,18 @@ function show_detail_new(obj){
     //alert(new_user_attr[$(selector).text()][0][3]);
 }
 function get_val(){
-  
-	var allattr = "";
-	for(i in new_user_attr){
-		    for (j in new_user_attr[i]){
-		        //$.post(url,function(data){alert(data);})
-		        allattr += "fid:="+new_user_attr[i][j][0]+"&value:="+new_user_attr[i][j][1]+new_user_attr[i][j][2];
-		    }
-		}
-		alert(allattr);
+    var allattr = "";
+    for (user in new_user_ci) {
+        alert(user);
+    }
+    for(user in new_user_attr){
+        for (attr in new_user_attr[user]){
+            //$.post(url,function(data){alert(data);})
+            allattr += "fid:="+new_user_attr[user][attr][0]+"&value:="+
+                       new_user_attr[user][attr][1] + new_user_attr[user][attr][2];
+        }
+    }
+   // alert(allattr);
 }
 function gotostep4()
 {

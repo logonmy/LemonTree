@@ -22,7 +22,7 @@ urls = (
         '/ajax_get_citype_all_attr'  , 'ajax_get_citype_all_attr',
         '/ajax_get_citype'           , 'ajax_get_citype',
         '/ajax_get_baseline_list'    , 'ajax_get_baseline_list',
-        '/ajax_getosuser_baseline'   , 'ajax_getosuser_baseline',
+        '/ajax_get_baseline_osuser'  , 'ajax_get_baseline_osuser',
         
         '/ajax_post_ci' , 'ajax_post_ci',
         '/ajax_post_ciattr', 'ajax_post_ciattr',
@@ -197,10 +197,10 @@ class ajax_gethostlist:
         HttpConnectionClose(conn)    
         return json.dumps(list_host, indent = 4,ensure_ascii=False, separators = (',',':'))
         
-class ajax_getosuser_baseline:
+class ajax_get_baseline_osuser:
     def GET(self):
         conn = HttpConnectionInit()
-        url = "/ci?citype_name=OS_USER&tag=BASELINE:OS"
+        url = "/ci?citype_name=OS_USER&tag=BASELINE:OS_RHEL6.3_X64"
         conn.request(method = "GET",url = url)
         formatdata = json.loads(conn.getresponse().read())
         
@@ -229,7 +229,7 @@ class ajax_get_baseline_list:
         
 class ajax_post_ci:
     def POST(self):
-        url_params = web.input(desciption=None, tag=None, priority=0, owner=None)
+        url_params = web.input(description=None, tag=None, priority=0, owner=None)
         ciname = url_params.get('ciname')
         citype_fid = url_params.get('ci_type_fid')
         
@@ -238,7 +238,7 @@ class ajax_post_ci:
             return ERR_URL_WITHTOUT_NECESSARY_ATTR
         
         params = {'name': ciname, 'ci_type_fid': citype_fid}
-        if url_params.descriptions is not None:
+        if url_params.description is not None:
             params['description'] = url_params.description
         
         if url_params.tag is not None:
@@ -251,9 +251,7 @@ class ajax_post_ci:
             params['owner'] = url_params.owner
         
         params = urllib.urlencode(params)
-        headers = {"Content-type": "application/x-www-form-urlencoded"
-                    , "Accept": "text/plain"}
-        conn.request("POST", url_params, params, headers)
+        conn.request("POST", "/ci", params)
         response = conn.getresponse()
         result = response.read()
         HttpConnectionClose(conn)
