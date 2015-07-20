@@ -3,7 +3,7 @@ $(document).ready(function(){
     for(var i=1; i<$cilist.length; i++)
     {
         $('#'+$cilist[i]).dataTable( {
-            "bAutoWidth": true,                                        //页面自动宽度
+            "bAutoWidth" : true,                                        //页面自动宽度
             "processing" : true,
             "bPaginate": false,                                        //页面分页（右下角）
             "sDom" : '<"toolbar_'+ $cilist[i] +'">frti',               //自定义组件排版

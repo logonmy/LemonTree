@@ -1,13 +1,67 @@
 var webapiserver = "192.168.1.3";
 var webapiserver_port = "8080";
 
-function update_ci_attr(obj){
-    var hostname = document.getElementById("step1_host_name").value;
-    var step1_description = document.getElementById("step1_description").value;
-    alert(hostname+step1_description);
-    var url = "http://"+$webapiserver+":"+$webapiserver_port+"/ci?name=slave12&ci_type_fid=FCIT00000001";
-                $.post(url,null,function(data){alert("insert successful");})
-                } 
+/*  参数备注：fid   ->    ci attribute的family id
+    change_log为必须输入项，description默认为空
+    value和owner如果不输入的话，将使用原来的默认值
+*/
+function update_ci_attr(fid, change_log, value=null, description=null, owner=null ){
+    var url = "http://"+webapiserver+":"+webapiserver_port+"/ciattr?fid=" + fid +
+              "&change_log=" + change_log;
+    
+    if (value != null) { url += "&value=" + value; }
+    if (description != null) { url += "&description=" + description; }
+    if (owner != null) { url += "&owner=" + owner; }
+    //url = "http://192.168.1.3:8080/ci?name=niusheng&ci_type_fid=FCIT00000001";
+    url = "192.168.1.3:8080/ciattr?fid=FCAD00000002&change_log=test&value=3.1.1";
+    alert(url);
+    $.post(url, null, function(data){
+        alert("insert successful");
+    }).error(function(){
+        alert("insert failed");
+    });
+}
+
+function changeToEdit(node, content){ 
+    node.html("");
+    var inputObj = $("<input id='ciattrvalue' type='text'/></div>"); 
+    //插入一个可编辑的 input对象
+    inputObj.css("border","1").css("background-color",node.css("background-color"))
+        .css("font-size",node.css("font-size")).css("height","80%")
+        .css("width", "95%").val(content).appendTo(node) 
+    $('#ciattrvalue').focus();
+    
+    inputObj.click(function(){ 
+        return false; 
+    }).keyup(function(event){ 
+        var keyvalue = event.which; 
+        if(keyvalue==13){ 
+            //13 是enter键
+            //alert(document.getElementById("tmptest").value);
+            $('#myModal').modal("show");
+            node.html(content);
+            $('#submitModify').click(function(){
+                update_ci_attr("FCAD00000002", "test", "3.1.1");
+                node.html(node.children("input").val());
+            });
+            
+            $('#cancelModify').click(function(){
+                node.html(content);
+            });
+            
+            
+//              if(confirm("是否保存？","Yes","No")){ 
+//                  node.html(node.children("input").val()); 
+//              }else{ 
+//                  node.html(content); 
+//              } 
+        } 
+        if(keyvalue==27){ 
+            //27是esc键
+            node.html(content);
+        } 
+    });
+}
 
 $(document).ready(function(){
     var table = $('#allhostlist').DataTable( {
@@ -15,23 +69,17 @@ $(document).ready(function(){
         "processing" : true,
         "bPaginate": true,                                        //页面分页（右下角）
         "aLengthMenu":  [[10, 25, 50, -1], ["每页10条", "每页25条", "每页50条", "显示所有数据"]],
-//        "ajax" : {
-//            "url" : "/ajax_gethostlist",
-//            "dataSrc" : "",
-//            "async" : false, 
-//            "bDeferRender": true
-//        },
-//        "aoColumns": [
-//            { "data": "HOSTNAME" },
-//            { "data": "KERNEL_VERSION" },
-//            { "data": "DESCRIPTION" },
-//        ],
-//        "initComplete": function () {
-//            var api = this.api();
-//            api.$('tr').click( function () {
-//                点击行执行动作，tr改成td也可以有相应的动作
-//            } );
-//        },
+        "ajax" : {
+            "url" : "/ajax_gethostlist",
+            "dataSrc" : "",
+            "async" : false, 
+            "bDeferRender": true
+        },
+        "aoColumns": [
+            { "data": "HOSTNAME" },
+            { "data": "KERNEL_VERSION" },
+            { "data": "DESCRIPTION" },
+        ],
         "columnDefs": [ 
             {
             "targets": 0,
@@ -42,7 +90,7 @@ $(document).ready(function(){
             {
             "searchable" : false,
             "orderable" : false,
-            "targets" : 2,    
+            "targets" : 2,
             },
              
         ],
@@ -63,6 +111,16 @@ $(document).ready(function(){
             "sInfoFiltered": "数据表中共为 _MAX_ 条记录)",    
             "sProcessing": "正在加载中...",    
             "sSearch": "搜索：",    
+        },
+        "fnDrawCallback": function () {
+            $('#allhostlist tbody th').editable( 
+                './editable_ajax.php', {
+                "callback": function( sValue, y ) {
+                    /* Redraw the table from the new data on the server */
+                    oTable.fnDraw();
+                },
+                "height": "14px"
+            } );
         }
     } );
 
@@ -74,64 +132,14 @@ $(document).ready(function(){
         column.visible( ! column.visible() );
     } );
 
-     var content;   
-    //增加表格隔行不同颜色功能
-    $('#allhostlist tbody th').click(function(){ //这行的td可以替换为 th  ，主要看表格里是什么
+    var content;   
+    $('#allhostlist tbody th').click(function(){
         var clickObj = $(this); 
   
         //获取当前操作对象
         content = clickObj.html();
-        changeToEdit(clickObj);
+        changeToEdit(clickObj, content);
     }); 
-
-    function changeToEdit(node){ 
-        node.html("");
-        var inputObj = $("<input id='ciarrtvalue' type='text'/></div>"); 
-        //插入一个可编辑的 input对象
-        inputObj.css("border","1").css("background-color",node.css("background-color"))
-            .css("font-size",node.css("font-size")).css("height","80%")
-            .css("width", "95%").val(content).appendTo(node) 
-
-        inputObj.click(function(){ 
-            return false; 
-        }).keyup(function(event){ 
-            var keyvalue = event.which; 
-            if(keyvalue==13){ 
-                //13 是enter键
-                //alert(document.getElementById("tmptest").value);
-                $('#myModal').modal("show");
-                
-                $('#submitModify').click(function(){
-                    alert("1");    
-                });
-                
-                $('#cancelModify').click(function(){
-                    node.focus().html(content);     
-                });
-                
-                
-//                if(confirm("是否保存？","Yes","No")){ 
-//                    node.html(node.children("input").val()); 
-//                }else{ 
-//                    node.html(content); 
-//                } 
-            } 
-            if(keyvalue==27){ 
-                //27是esc键
-                node.html(content);
-            } 
-        }).blur(function(){ 
-            if(node.children("input").val()!=content){ 
-                if(confirm("是否保存？","Yes","No")){ 
-                    node.html(node.children("input").val()); 
-                }else{ 
-                    node.html(content); 
-                } 
-            }else{ 
-                node.html(content); 
-            } 
-        });
-    } 
 
 });
 

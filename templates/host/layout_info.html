@@ -15,21 +15,17 @@
     <link rel="stylesheet" type="text/css" href="./static/css/editor.bootstrap.css">
 
     <!--加载的JS文件-->
-    <script src="./static/js/jquery.min.js"></script>
-    <script src="./static/js/bootstrap.min.js"></script>
-    <script src="./static/js/jquery.dataTables.min.js"></script>
-    <script src="./static/js/dataTables.bootstrap.js"></script>
+    <script src="./static/jquery/jquery.min.js"></script>
+    <script src="./static/jquery/bootstrap.min.js"></script>
+    <script src="./static/jquery/jquery.dataTables.min.js"></script>
+    <script src="./static/jquery/dataTables.bootstrap.js"></script>
     
     <!--代码循环将页面额外需要的css文件加载，如果不需要加载额外的变量，
         则将cssfiles变量置为空即可  -->
     $if content.cssfiles:
         $for f in content.cssfiles.split():
             <link rel="stylesheet" type="text/css" href="./static/css/$f">
-    <!--代码循环将页面额外需要的jquery文件加载，如果不需要加载额外的变量，
-        则将jqueryfiles变量置为空即可  -->
-    $if content.jqueryfiles:
-        $for f in content.jqueryfiles.split():
-            <script src="../static/jquery/$f"></script>
+
     
 </head>
 <body>
@@ -79,4 +75,9 @@
             $:content
         </div>
 </body>
+    <!--代码循环将页面额外需要的jquery文件加载，如果不需要加载额外的变量，
+        则将jqueryfiles变量置为空即可  -->
+    $if content.jqueryfiles:
+        $for f in content.jqueryfiles.split():
+            <script src="../static/jquery/$f"></script>
 </html>

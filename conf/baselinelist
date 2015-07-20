@@ -1,0 +1,9 @@
+﻿#BaselineType       CI_TYPE                      CI_NAME            CI_FID
+Linux6.3_OS         OS_SERVICE
+Linux6.3_OS         OS_KERNEL_GLOBAL
+Linux6.3_OS         OS_AUTHORIZATION_SSH
+Linux6.3_OS         OS_PACKAGE
+Linux6.3_OS         OS_USER_GLOBAL
+
+Linux6.3_SE         OS_SECURITY
+Linux6.3_SE         OS_LOG

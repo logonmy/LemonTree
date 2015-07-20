@@ -4,6 +4,9 @@ import sys
 import httplib, urllib
 import json
 
+
+ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
+
 urls = (
         '/index'            ,'index',
         '/hostinfo'         ,'hostinfo',
@@ -11,7 +14,9 @@ urls = (
         '/hostbaselinelist' ,'hostbaselinelist',
         '/addhost'          ,'addhost',
         '/ajax_gethostlist' ,'ajax_gethostlist',
-        '/ajax_getci'       ,'ajax_getci',
+        '/ajax_get_ci_all_attr'      , 'ajax_get_ci_all_attr',
+        '/ajax_get_citype_all_attr'  , 'ajax_get_citype_all_attr',
+        '/ajax_getosuser_baseline'   ,'ajax_getosuser_baseline',
        )
 
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
@@ -101,12 +106,41 @@ class addhost:
         render = web.template.render('templates/host/', base='layout_info')
         return render.addhost()
 
-class ajax_getci:
+class ajax_get_ci_all_attr:
     def GET(self):
-        result = web.input(cifid = None)
+        url_ciattr = "/ciattr"
+        token_init = 0
+        result = web.input(cifid = None, ci_type_fid = None)
         conn  =  HttpConnectionInit()
-        url_citype = "/ciattr?ci_fid=" + result.cifid
-        conn.request(method = "GET",url = url_citype)
+        
+        if result.cifid :
+            if token_init == 0:
+                url_ciattr += "?ci_fid=" + result.cifid
+                token_init = 1
+            else:
+                url_ciattr += "&ci_fid=" + result.cifid
+        
+        conn.request(method = "GET",url = url_ciattr)
+        data = conn.getresponse().read()
+        HttpConnectionClose(conn)
+        return data
+
+class ajax_get_citype_all_attr:
+    def GET(self):
+        url_citypeattr = "/ciattrtype"
+        token_init = 0
+        result = web.input(ci_type_fid = None)
+        conn  =  HttpConnectionInit()
+        
+        if result.ci_type_fid :
+            if token_init == 0:
+                url_citypeattr += "?ci_type_fid=" + result.ci_type_fid
+                token_init = 1
+            else:
+                url_citypeattr += "&ci_type_fid=" + result.ci_type_fid
+        
+        print url_citypeattr    
+        conn.request(method = "GET",url = url_citypeattr)
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
         return data
@@ -141,6 +175,47 @@ class ajax_gethostlist:
         HttpConnectionClose(conn)    
         return json.dumps(list_host, indent = 4,ensure_ascii=False, separators = (',',':'))
         
+class ajax_getosuser_baseline:
+    def GET(self):
+        conn = HttpConnectionInit()
+        url = "/ci?citype_name=OS_USER&tag=BASELINE:OS"
+        conn.request(method = "GET",url = url)
+        formatdata = json.loads(conn.getresponse().read())
+        
+        return json.dumps(formatdata, indent = 4,ensure_ascii=False, separators = (',',':'))
+        
+class ajax_post_ci:
+    def POST(self):
+        url_params = web.input(desciption=None, tag=None, priority=0, owner=None)
+        ciname = url_params.get('name')
+        citype_fid = url_params.get('ci_type_fid')
+        
+        conn  =  HttpConnectionInit()
+        if ciname is None or citype_fid is None:
+            return ERR_URL_WITHTOUT_NECESSARY_ATTR
+        
+        params = {'name': ciname, 'ci_type_fid': citype_fid}
+        if url_params.descriptions is not None:
+            params['description'] = url_params.descriptions
+        
+        if url_params.tag is not None:
+            params['tag'] = url_params.tag
+            
+        if url_params.priority is not None:
+            params['priority'] = url_params.priority
+        
+        if url_params.owner is not None:
+            params['owner'] = url_params.owner
+        
+        params = urllib.urlencode(params)
+        headers = {"Content-type": "application/x-www-form-urlencoded"
+                    , "Accept": "text/plain"}
+        conn.request("POST", url_params, params, headers)
+        
+        response = conn.getresponse()
+        HttpConnectionClose(conn)
+        
+         
  
 if __name__ == "__main__":
     app = web.application(urls, globals())
