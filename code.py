@@ -3,9 +3,12 @@ import web
 import sys
 import httplib, urllib
 import json
-
+from OracleConnector import OracleConnector
 
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 urls = (
         '/index'            ,'index',
@@ -14,9 +17,15 @@ urls = (
         '/hostbaselinelist' ,'hostbaselinelist',
         '/addhost'          ,'addhost',
         '/ajax_gethostlist' ,'ajax_gethostlist',
+        
         '/ajax_get_ci_all_attr'      , 'ajax_get_ci_all_attr',
         '/ajax_get_citype_all_attr'  , 'ajax_get_citype_all_attr',
-        '/ajax_getosuser_baseline'   ,'ajax_getosuser_baseline',
+        '/ajax_get_citype'           , 'ajax_get_citype',
+        '/ajax_get_baseline_list'    , 'ajax_get_baseline_list',
+        '/ajax_getosuser_baseline'   , 'ajax_getosuser_baseline',
+        
+        '/ajax_post_ci' , 'ajax_post_ci',
+        '/ajax_post_ciattr', 'ajax_post_ciattr',
        )
 
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
@@ -105,6 +114,20 @@ class addhost:
     def GET(self):
         render = web.template.render('templates/host/', base='layout_info')
         return render.addhost()
+    
+class ajax_get_citype:
+    def GET(self):
+        url = "/citype"
+        result = web.input(name = None)
+        conn  =  HttpConnectionInit()
+        
+        if result.name :
+            url += "?name=" + result.name
+        
+        conn.request(method = "GET",url = url)
+        data = conn.getresponse().read()
+        HttpConnectionClose(conn)
+        return data
 
 class ajax_get_ci_all_attr:
     def GET(self):
@@ -139,7 +162,6 @@ class ajax_get_citype_all_attr:
             else:
                 url_citypeattr += "&ci_type_fid=" + result.ci_type_fid
         
-        print url_citypeattr    
         conn.request(method = "GET",url = url_citypeattr)
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
@@ -183,11 +205,32 @@ class ajax_getosuser_baseline:
         formatdata = json.loads(conn.getresponse().read())
         
         return json.dumps(formatdata, indent = 4,ensure_ascii=False, separators = (',',':'))
+    
+class ajax_get_baseline_list:
+    def GET(self):
+        formatdata = []
+        dict_attr = {}
+        conn = OracleConnector('host', 'host123', 'cffexcmdb')
+        conn.connect()
+        #convert(displayname, 'utf8')
+        sql = '''select id, convert(type, 'utf8') , DISPLAYNAME,  
+              convert(description, 'utf8') from t_baseline'''
+        baseline_list = conn.select(sql)
+        for item in baseline_list:
+            dict_attr = {}
+            dict_attr['ID'] = item[0]
+            dict_attr['TYPE'] = item[1]
+            dict_attr['DISPLAYNAME'] = item[2].encode('gb2312')
+            dict_attr['DESCRIPTION'] = item[3]
+            formatdata.append(dict_attr)
+        conn.close()
+        return formatdata
+        
         
 class ajax_post_ci:
     def POST(self):
         url_params = web.input(desciption=None, tag=None, priority=0, owner=None)
-        ciname = url_params.get('name')
+        ciname = url_params.get('ciname')
         citype_fid = url_params.get('ci_type_fid')
         
         conn  =  HttpConnectionInit()
@@ -196,7 +239,7 @@ class ajax_post_ci:
         
         params = {'name': ciname, 'ci_type_fid': citype_fid}
         if url_params.descriptions is not None:
-            params['description'] = url_params.descriptions
+            params['description'] = url_params.description
         
         if url_params.tag is not None:
             params['tag'] = url_params.tag
@@ -211,10 +254,36 @@ class ajax_post_ci:
         headers = {"Content-type": "application/x-www-form-urlencoded"
                     , "Accept": "text/plain"}
         conn.request("POST", url_params, params, headers)
-        
         response = conn.getresponse()
+        result = response.read()
         HttpConnectionClose(conn)
+        return result
         
+class ajax_post_ciattr:
+    def POST(self):
+        url_params = web.input(desciption=None, owner=None)
+        cifid = url_params.get('cifid')
+        ciattr_type_fid = url_params.get('ciattr_type_fid')
+        
+        conn  =  HttpConnectionInit()
+        if cifid is None or ciattr_type_fid is None:
+            return ERR_URL_WITHTOUT_NECESSARY_ATTR
+        
+        params = {'ci_fid': cifid, 'ciattr_type_fid': ciattr_type_fid}
+        if url_params.description is not None:
+            params['description'] = url_params.descriptions
+        
+        if url_params.owner is not None:
+            params['owner'] = url_params.owner
+        
+        params = urllib.urlencode(params)
+        headers = {"Content-type": "application/x-www-form-urlencoded"
+                    , "Accept": "text/plain"}
+        conn.request("POST", url_params, params, headers)
+        response = conn.getresponse()
+        result = response.read()
+        HttpConnectionClose(conn)
+        return result
          
  
 if __name__ == "__main__":

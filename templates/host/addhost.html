@@ -7,7 +7,7 @@ $var cssfiles: ystep.css
 <div class="row">
 
     <div id="myTabContent" class="tab-content">
-        <div id="myTabContent" class="tab-content">
+        
         <div id = "ystep" class="ystep col-md-offset-3" style="margin-top:2%;position:relative;"></div>
         <!-- 填写主机信息,step1 -->
         <div class="tab-pane fade  in active  col-md-10 col-md-offset-1 "  
@@ -72,13 +72,39 @@ $var cssfiles: ystep.css
             <div class="input-group  col-md-12 " style="margin-top:0%;position:relative;">
                 <h3>步骤二: 用户配置</h3>
                 <div class="panel-group" id="defaultuser">
+                	  <div class="col-md-12"  style="display:none" id="add_user_div">
+                	  
+                    	  <table  class="table table-bordered" id="add_user_table"
+                                cellspacing="0" width="100%" >
+                            <thead>
+                                <tr class="active">
+                                    <th>属性名称</th>
+                                    <th>属性值</th>
+                                    <th>描  述</th>
+                                    <th>属主 </th>
+                                </tr>
+                                 </thead>
+                                <tr>
+                                    <td >用户名</td>
+                                    <td><input type="text" id="user_name" class="form-control"></td>
+                                    <td><input type="text" class="form-control"></td>
+                                    <td><input type="text" class="form-control"></td>
+                                </tr>
+            
+                            
+                        </table>
+                        <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
+                        <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
+                      <hr/>
+                    </div>
+                	  </div>
                     <div class="panel-heading">
                         <input type="button" value="点击添加用户" onclick="show_detail('adduser')" class="btn btn-default" style="float:right">
                     </div>
                     <div style="margin-top:40px;">
                         <table id="baselineuserlist" class="table table-bordered" 
                             cellspacing="0" width="100%" >
-                        <thead>
+                        <thead >
                             <tr class="active">
                                 <th> </th>
                                 <th width="30%">用户名</th>
@@ -89,7 +115,7 @@ $var cssfiles: ystep.css
                         </table>
                     </div>
                 </div>
-            </div>
+            
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
                     <button href="#step1" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
@@ -99,10 +125,11 @@ $var cssfiles: ystep.css
                     <button href="#step3" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
                 onclick="gotostep3()">下一步</button> 
                 </div>
+                <input type="button" class="btn btn-info" onclick="get_val()" value="get">
             </div>
-            
-            
-        </div>
+        </div>    
+          
+        
 
         <!--//填写网络配置,step3,start-->
         <div class="tab-pane fade col-md-offset-4 col-md-6"  style="margin-top:0%;height:80%;position:relative;" id="step3">
@@ -219,28 +246,36 @@ $var cssfiles: ystep.css
         </div>
     </div>
     
-    <!--模态框-->
-    </div>
+        <!--模态框 查看用户-->
         <div class="modal fade" id="user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div  class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <div class="modal-header" style="height:140px">
+                        <button type="button" class="close" data-dismiss="modal">
                             &times;
                         </button>
-                        <h4 class="modal-title" id="myModalLabel">用户属性</h4>
+                        <h4 class="modal-title" >用户</h4>
+                            <div style="margin-top:2%" class="col-md-12">
+                                <font class="col-md-5">用户名</font>
+                                <input type="text" style="margin-left:15%" id="user_name">
+                            </div>
+                            <div style="margin-top:2%" class="col-md-12">
+                                <font class="col-md-5">描述</font>
+                                <input type="text" style="margin-left:15%" id="user_description">
+                            </div>
                     </div><!--modal-header --> 
                     <div class="modal-body" >
+                    	  <h4 class="modal-title" >属性</h4>
                         <div id="modal-userattr" style="margin-top:10px;"></div>
-                    </div><!--modal-body --> 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" onclick="adduser()">保存</button>
                     </div>
+                                            
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" >确定</button>
                 </div><!--modal-content -->
            </div><!--modal-dialog -->
           </div><!--modal-fade -->
+          
+
     </div>
+    
 
-
-</div>

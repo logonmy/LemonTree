@@ -4,9 +4,11 @@ var array_index2 = 0;
 //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
 var user_attr_list = new Object(); //没用到
 var default_user_attr = new Array();//保存默认5个用户的现有属性
-var user_arrt = new Array();//保存用户所有属性
+var user_attr = new Array();//保存用户所有属性
 var adduser_or_showuser = "";//来判断按钮是新增还是展示
-var new_user = new Object();//保存新增用户的属性
+var new_user_attr = new Object();//保存新增用户的属性
+var new_user_ci = new Object();
+var table_added ="";
 //
 //function creat_host_ci(obj){
 //	
@@ -56,7 +58,13 @@ function new_baseline(tmp){
     $("#baseline_container").append(str);
 
  }
-
+function cancel_add_user(){
+	  
+   	$("#add_user_div :input").each(function () { 
+        $(this).val(""); 
+    })
+    $("#add_user_div").hide();
+}
 function addkernel(){
     var tmpstr = "<div class=\"input-group col-md-12\"> <font style=\"font-size:20px\">"+
                  "内核参数</font> <input type=\"text\" style=\"width:100%\"></div>";
@@ -184,27 +192,24 @@ function show_detail(obj){
     var cid = $(obj).parent().prevAll().length  ;
     var rid = $(obj).parent().parent().prevAll().length;
     var ci_fid = array_url[rid][0];
-    if(obj == "new"){
-        
-    }
-    else{
-    	 
+    userattr_table = "";
     if(obj == "adduser"){
-    	  $.ajaxSettings.async = false;
-        $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
-        	  user_attr = data ;
-            var userattrtype_html = "";
-            for(var i = 0; i < data.length; i++){
-                    
-                    //alert(data[i]['mandatory']);
-                    userattrtype_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-6\">"+data[i]["NAME"]           +
-                                     "</font><input type=\"text\" style=\"margin-left:15%\" id=\""   +
-                                     data[i]["FAMILY_ID"]+"\"></div>";
-              
+        if(table_added == ""){
+            $.ajaxSettings.async = false;
+            var userattr_table ="";
+            $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
+            user_attr = data ;
+            })
+            for(var i = 0; i < user_attr.length; i++){
+            userattr_table += "<tr><td>" + user_attr[i]["NAME"] +"</td>"                    +
+                               "<td><input type=\"text\" class=\"form-control\" id = \"" + user_attr[i]["FAMILY_ID"] + "\"/></td>"+
+                              "<td><input type=\"text\" class=\"form-control\" id = \"description_" + user_attr[i]["FAMILY_ID"] + "\"/></td>"+
+                              "<td><input type=\"text\" class=\"form-control\" id = \"owner_" + user_attr[i]["FAMILY_ID"] + "\"/></td>";
             }
-            $('#modal-userattr').html(userattrtype_html);
-        });
-        $("#user_modal").modal('show');	
+            $("#add_user_table").append(userattr_table);
+            table_added = "y";
+        }
+            $("#add_user_div").show();
         adduser_or_showuser = "add";
     }else{
         $.ajaxSettings.async = false;//取消ajax的异步作用，让全局变量在函数结束前，就能改变。
@@ -236,7 +241,7 @@ function show_detail(obj){
         $("#user_modal").modal('show');
         adduser_or_showuser = "show";
     }
-  }
+  
 }
 function adduser()
 {
@@ -247,27 +252,58 @@ function adduser()
    //} 
    //alert(list[0].id);
    // alert(user_attr_list['FCAT00000118']);
-   var username = $("#FCAT00000027").val();
-   new_user[username] = new Array();
+   
+   var username = $("#user_name").val();
+   var userdescription = $("#user_description").val();  
+   new_user_ci[username] = new Array();
+   new_user_ci[username][0] =  userdescription;
+   new_user_attr[username] = new Array();
    for (var i = 0 ; i < user_attr.length-1 ; i++){
-   	   new_user[username][i] = new Array();
-       new_user[username][i][0] = user_attr[i]["FAMILY_ID"];
+   	   new_user_attr[username][i] = new Array();
+       new_user_attr[username][i][0] = user_attr[i]["FAMILY_ID"];
        var fid = user_attr[i]["FAMILY_ID"];
-       new_user[username][i][1] = $("#"+fid).val();
+       new_user_attr[username][i][1] = $("#"+fid).val();
+       new_user_attr[username][i][2] = $("#description_"+fid).val();
+       new_user_attr[username][i][2] = $("#owner_"+fid).val();
+       new_user_attr[username][i][4] = user_attr[i]["NAME"];
    }
-   if(adduser_or_showuser == "add"){
+   
 
-       var html = "<tr><td>Add</td><td>"+ username +"</td><td>Add</td><td><button type=\"button\" " +
-                  " class=\"btn btn-default\" onclick=\"show_detail('new')\" >点击查看属性</button></td></tr>";   
+
+       var html = "<tr><td>Add</td><td>"+ username +"</td><td>"+ userdescription +"</td><td><button type=\"button\" " +
+                  " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";   
        $("#baselineuserlist").append(html);
-   	}
-}
 
+   	///把表格收起来
+   	$("#add_user_div").hide();
+   	$("#add_user_div :input").each(function () { 
+        $(this).val(""); 
+    })
+   	
+}
+function show_detail_new(obj){
+    var userattr_html = "";
+    var col = $(obj).parent().parent().prevAll().length + 1;
+    var selector = "#baselineuserlist tr:eq(" + col +") td:eq(1)";
+    for (var i = 0 ; i < new_user_attr[$(selector).text()].length ; i++ ){
+        userattr_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-5\">"+
+   	                     new_user_attr[$(selector).text()][i][4] +
+                         "</font><input type=\"text\" style=\"margin-left:15%\" value=\""            + 
+                         new_user_attr[$(selector).text()][i][1] +"\"></div>"; 
+                        
+    }
+    $('#modal-userattr').html(userattr_html);
+    $("#user_modal").modal('show');
+    //adduser_or_showuser = "show";
+    //alert(new_user_attr[$(selector).text()][0][3]);
+}
 function get_val(){
-	var allattr = ""
-	for(i in new_user){
-		    for (j in new_user[i]){
-		        allattr += "fid:="+new_user[i][j][0]+"value:="+new_user[i][j][1];
+  
+	var allattr = "";
+	for(i in new_user_attr){
+		    for (j in new_user_attr[i]){
+		        //$.post(url,function(data){alert(data);})
+		        allattr += "fid:="+new_user_attr[i][j][0]+"&value:="+new_user_attr[i][j][1]+new_user_attr[i][j][2];
 		    }
 		}
 		alert(allattr);
