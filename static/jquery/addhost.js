@@ -1,6 +1,12 @@
-var array_url= [[],[],[],[],[],[],[],[],[]];
+var array_url= [[],[],[],[],[],[],[],[],[]];//默认加载的用户，现设定最大值为9
 var array_index1 = 0;
 var array_index2 = 0;
+//array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
+var user_attr_list = new Object(); //没用到
+var default_user_attr = new Array();//保存默认5个用户的现有属性
+var user_arrt = new Array();//保存用户所有属性
+var adduser_or_showuser = "";//来判断按钮是新增还是展示
+var new_user = new Object();//保存新增用户的属性
 //
 //function creat_host_ci(obj){
 //	
@@ -123,7 +129,7 @@ function gotostep2()
                 "targets": 0,
                 "mRender" : function(data, type, full){
                         if(data=="root"){
-                            return "<input style=\"width:20px;height:20px\" disabled=true" +
+                            return "<input style=\"width:20px;height:20px\" disabled=true " +
                                        "checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/>";
                         }else{
                              return "<input style=\"width:20px;height:20px\" type = \"checkbox\" name=\"host_selected\"/>";
@@ -136,6 +142,7 @@ function gotostep2()
                 "mRender" : function(data, type, full){
                     array_url[array_index1][array_index2] = data;
                     array_index2 = array_index2 + 1;
+                    //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
                     }
                 },
                 {
@@ -176,34 +183,95 @@ function gotostep3()
 function show_detail(obj){
     var cid = $(obj).parent().prevAll().length  ;
     var rid = $(obj).parent().parent().prevAll().length;
-    
     var ci_fid = array_url[rid][0];
+    if(obj == "new"){
+        
+    }
+    else{
+    	 
     if(obj == "adduser"){
+    	  $.ajaxSettings.async = false;
         $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
+        	  user_attr = data ;
             var userattrtype_html = "";
-            for(var i = 1; i < data.length; i++){
-                userattrtype_html += "<div class=\"col-md-6\">"+data[i]["NAME"]+"</div>" +
-                                 "<div class=\"col-md-6\"><input type=\"text\" "+ 
-                                 "id=\""+data[i]["FAMILY_ID"]+"\"></div>";
+            for(var i = 0; i < data.length; i++){
+                    
+                    //alert(data[i]['mandatory']);
+                    userattrtype_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-6\">"+data[i]["NAME"]           +
+                                     "</font><input type=\"text\" style=\"margin-left:15%\" id=\""   +
+                                     data[i]["FAMILY_ID"]+"\"></div>";
+              
             }
             $('#modal-userattr').html(userattrtype_html);
         });
         $("#user_modal").modal('show');	
+        adduser_or_showuser = "add";
     }else{
+        $.ajaxSettings.async = false;//取消ajax的异步作用，让全局变量在函数结束前，就能改变。
         $.getJSON("/ajax_get_ci_all_attr?cifid=" + ci_fid, function(data) {
-            var userattr_html = "";
-            for(var i = 1; i < data.length; i++){
-                userattr_html += "<div class=\"col-md-6\" >"+data[i]["CIAT_NAME"]+"</div>" +
-                                 "<div class=\"col-md-6\"><input type=\"text\" value=\""+ data[i]["VALUE"] +"\" "+ 
-                                 "id=\""+data[i]["FAMILY_ID"]+"\"></div>";
+            default_user_attr = data;//FAMILY_ID+VALUE+CIAT_NAME
+            });
+        $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
+            user_attr = data ;//NAME+FAMILY_ID
+        })	 
+        var userattr_html = "";
+        //alert(user_attr.length);
+        for(var i = 0; i < user_attr.length; i++){
+        	  var k = 0 ;
+            for(var j = 0 ; j < default_user_attr.length ; j++ ){
+                if(user_attr[i]["FAMILY_ID"] == default_user_attr[j]["TYPE_FID"]){
+                    userattr_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-5\">"+user_attr[i]["NAME"] +
+                                     "</font><input type=\"text\" style=\"margin-left:15%\" value=\""+ default_user_attr[j]["VALUE"] +"\" "+ 
+                                     "id=\""+default_user_attr[j]["FAMILY_ID"]+"\"></div>";
+                    k = k + 1 ;
+                }
             }
-            $('#modal-userattr').html(userattr_html);
-        });
-        
+            if (k == 0){
+                    userattr_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-5\">"+user_attr[i]["NAME"] +
+                                     "</font><input type=\"text\" style=\"margin-left:15%\" id=\""   +
+                                     user_attr[i]["FAMILY_ID"]+"\"></div>";
+            }
+        }
+        $('#modal-userattr').html(userattr_html);
         $("#user_modal").modal('show');
+        adduser_or_showuser = "show";
     }
+  }
+}
+function adduser()
+{
+    //alert($("#FCAT00000027").id()); $("#modal-userattr input[type=text]")
+    //var list = $("#modal-userattr input[type=text]");
+    //for (var i= 0;i<list.length-2;i++){
+     //   user_attr_list[list[i].id] = list[i].value;
+   //} 
+   //alert(list[0].id);
+   // alert(user_attr_list['FCAT00000118']);
+   var username = $("#FCAT00000027").val();
+   new_user[username] = new Array();
+   for (var i = 0 ; i < user_attr.length-1 ; i++){
+   	   new_user[username][i] = new Array();
+       new_user[username][i][0] = user_attr[i]["FAMILY_ID"];
+       var fid = user_attr[i]["FAMILY_ID"];
+       new_user[username][i][1] = $("#"+fid).val();
+   }
+   if(adduser_or_showuser == "add"){
+
+       var html = "<tr><td>Add</td><td>"+ username +"</td><td>Add</td><td><button type=\"button\" " +
+                  " class=\"btn btn-default\" onclick=\"show_detail('new')\" >点击查看属性</button></td></tr>";   
+       $("#baselineuserlist").append(html);
+   	}
 }
 
+function get_val(){
+	var allattr = ""
+	for(i in new_user){
+		    for (j in new_user[i]){
+		        allattr += "fid:="+new_user[i][j][0]+"value:="+new_user[i][j][1];
+		    }
+		}
+		alert(allattr);
+}
 function gotostep4()
 {
     $("#hostbaseline tr:eq(0) th:eq(0)").text($("#os").val());
