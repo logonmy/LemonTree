@@ -17,16 +17,20 @@ urls = (
         '/hostlist'         ,'hostlist',
         '/hostbaselinelist' ,'hostbaselinelist',
         '/addhost'          ,'addhost',
+        
         '/ajax_gethostlist' ,'ajax_gethostlist',
         
-        '/ajax_ci'               , 'cmdbAPI.ajax_ci',
-        '/ajax_cirela'           , 'cmdbAPI.ajax_cirela',
-        '/ajax_ciattr'           , 'cmdbAPI.ajax_ciattr',
+        '/ajax_ci'              , 'cmdbAPI.ajax_ci',
+        '/ajax_cirela'          , 'cmdbAPI.ajax_cirela',
+        '/ajax_ciattr'          , 'cmdbAPI.ajax_ciattr',
+        '/ajax_citype'          , 'cmdbAPI.ajax_citype',
+        '/ajax_cirelatype'      , 'cmdbAPI.ajax_cirelatype',
+        '/ajax_ciattrtype'      , 'cmdbAPI.ajax_ciattrtype',
         
         '/ajax_get_ci_all_attr'      , 'cmdbAPI.ajax_get_ci_all_attr',
         '/ajax_get_citype_all_attr'  , 'cmdbAPI.ajax_get_citype_all_attr',
         
-        '/ajax_get_citype'           , 'cmdbAPI.ajax_get_citype',
+        #'/ajax_get_citype'           , 'cmdbAPI.ajax_get_citype',
         '/ajax_get_baseline_list'    , 'cmdbAPI.ajax_get_baseline_list',
         '/ajax_get_baseline_osuser'  , 'cmdbAPI.ajax_get_baseline_osuser',
         

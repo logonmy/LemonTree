@@ -135,19 +135,50 @@ class ajax_ciattr:
     def POST(self):
         pass
     
-class ajax_get_citype:
+class ajax_citype:
     def GET(self):
         url = "/citype"
-        result = web.input(name = None)
+        token_init = 0
+        result = web.input(name = None, description=None, owner=None, \
+                           family_id=None, time=None)
         conn  =  HttpConnectionInit()
         
-        if result.name :
-            url += "?name=" + result.name
+        page_attr = {'name'         : result.name,                   #CI TYPE的名字
+                     'description'  : result.description,
+                     'owner'        : result.owner,
+                     'family_id'    : result.family_id,              #CI TYPE FAMILY_ID 
+                     'time'         : result.time,
+                     }
         
+        for key, value in page_attr.items() :
+            if value :
+                if token_init == 0:
+                    url += "?" + key + "=" + value
+                    tokent_init = 1
+                else:
+                    url += "&" + key + "=" + value
+
         conn.request(method = "GET",url = url)
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
         return data
+
+    def POST(self):
+        pass
+    
+class ajax_cirelatype:
+    def GET(self):
+        pass
+    
+    def POST(self):
+        pass
+    
+class ajax_ciattrtype:
+    def GET(self):
+        pass
+    
+    def POST(self):
+        pass
 
 class ajax_get_ci_all_attr:
     def GET(self):
@@ -186,7 +217,11 @@ class ajax_get_citype_all_attr:
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
         return data
-    
+
+'''
+gethostlist类不仅仅是获取了ci，而且还要显示一些属性，所以，这个是两个api合并后的结果
+不能直接ajax_ci，单独提出来作为一个类，相应hostlist页面
+'''    
 class ajax_gethostlist:
     def GET(self):
         conn  =  HttpConnectionInit()
