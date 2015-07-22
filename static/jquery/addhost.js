@@ -12,21 +12,15 @@ var table_added ="";
 
 var commit_os = new Array();
 var commit_user = new Array();
-var commit_user_attr = new Array()();
+//var commit_user_attr = new Array()();
 var commit_baseline = new Array();
 
-
-function creat_host_ci(obj){
-    //step1新建主机ci   
-    var step1_hostname = document.getElementById("step1_host_name").value;
-    var step1_description = document.getElementById("step1_description").value;
-    var url = "/ajax_post_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001&description=" + step1_description;
-    alert(url);
-}
+//声明post提交语句的url
+var url_create_host_ci = "";
 
 function cancel_add_user(){
 	  
-   	$("#add_user_div :input").each(function () { 
+   	$("#add_user_div :input").each(function () {
         $(this).val(""); 
     })
     $("#add_user_div").hide();
@@ -61,83 +55,94 @@ $(function(){
 
 function gotostep2()
 {
+    //将Step1中填写的信息生成对应的POST url语句
+    var step1_hostname = document.getElementById("step1_host_name").value;
+    var step1_description = document.getElementById("step1_description").value;
+    url_create_host_ci = "/ajax_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001";
+    if ($.trim(step1_description) != "") 
+        url_create_host_ci += "&description=" + step1_description;
+    
+    url_create_host_ci = "/ajax_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001&description=" + step1_description;
+    
     $(".ystep").setStep(2);
     $('#myTabContent [href="#step2"]').tab('show');
-    var oTable = $('#baselineuserlist').dataTable( {
-            "bAutoWidth": false,                                        //页面自动宽度
-            "processing" : true,
-            "bPaginate": false,                                        //页面分页（右下角）
-            "bFilter": false, //过滤功能
-            "bSort": false, //排序功能
-            "bInfo": false ,//页脚信息
-            "ajax" : {
-                "url" : "/ajax_get_baseline_osuser",
-                "dataSrc" : "",
-                "async" : false, 
-                "bDeferRender": true
+    $('#baselineuserlist').dataTable( {
+        "bAutoWidth": false,                                        //页面自动宽度
+        "processing" : true,
+        "bPaginate": false,                                        //页面分页（右下角）
+        "bFilter": false, //过滤功能
+        "bSort": false, //排序功能
+        "bInfo": false ,//页脚信息
+        "ajax" : {
+            "url" : "/ajax_get_baseline_osuser",
+            "dataSrc" : "",
+            "async" : false, 
+            "bDeferRender": true
+        },
+        "aoColumns": [
+             { "data": "NAME"},
+             { "data": "NAME"},
+             { "data": "DESCRIPTION" },
+             { "data": ""},
+             { "data": "FAMILY_ID"},
+             { "data": "NAME" },
+        ],
+        "columnDefs": [ 
+            {
+            "targets": 3,
+            "mRender" : function(data, type, full){
+                    return "<button type=\"button\" class=\"btn btn-default\" onclick=\"show_detail(this)\">" +
+                           "点击查看属性</button>";
+                }
             },
-            "aoColumns": [
-                 { "data": "NAME"},
-                 { "data": "NAME"},
-                 { "data": "DESCRIPTION" },
-                 { "data": ""},
-                 { "data": "FAMILY_ID"},
-                 { "data": "NAME" },
-            ],
-            "columnDefs": [ 
-                {
-                "targets": 3,
-                "mRender" : function(data, type, full){
-                        return "<button type=\"button\" class=\"btn btn-default\" onclick=\"show_detail(this)\">" +
-                               "点击查看属性</button>";
-                    }
-                },
-                {
-                "targets": 0,
-                "mRender" : function(data, type, full){
-                        if(data=="root"){
-                            return "<input style=\"width:20px;height:20px\" disabled=true " +
-                                       "checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/>";
-                        }else{
-                             return "<input style=\"width:20px;height:20px\" type = \"checkbox\" name=\"host_selected\"/>";
-                        }
-                    }
-                },
-                {
-                "targets": 4 ,
-                "visible":false,
-                "mRender" : function(data, type, full){
-                    array_url[array_index1][array_index2] = data;
-                    array_index2 = array_index2 + 1;
-                    //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
-                    }
-                },
-                {
-                	
-                "targets": 5 ,
-                "visible":false,
-                "mRender" : function(data, type, full){
-                     array_url[array_index1][array_index2] = data;
-                     array_index1 = array_index1 + 1;
-                     array_index2 = array_index2 - 1;
+            {
+            "targets": 0,
+            "mRender" : function(data, type, full){
+                    if(data=="root"){
+                        return "<input disabled=true " +
+                                   "checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/>";
+                    }else{
+                         return "<input type = \"checkbox\" name=\"host_selected\"/>";
                     }
                 }
-            ],
-            "oLanguage": {                                             //自定义内容——国际化
-                "sLengthMenu": "每页显示 _MENU_ 条记录",
-                "sZeroRecords": "抱歉， 没有找到",
-                //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
-                "sInfo": "共 _TOTAL_ 个属性",
-                "sInfoEmpty": "没有数据",
-                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
-                "oPaginate": {
-                    "sFirst": "首页" ,
-                    "sPrevious": "前一页",
-                    "sNext": "后一页",
-                    "sLast": "尾页"
-                },
-                "sZeroRecords": "没有检索到数据",
             },
+            {
+            "targets": 4 ,
+            "visible":false,
+            "mRender" : function(data, type, full){
+                array_url[array_index1][array_index2] = data;
+                array_index2 = array_index2 + 1;
+                return 1;
+                //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
+                }
+            },
+            {
+            	
+            "targets": 5 ,
+            "visible":false,
+            "mRender" : function(data, type, full){
+                 array_url[array_index1][array_index2] = data;
+                 array_index1 = array_index1 + 1;
+                 array_index2 = array_index2 - 1;
+                 return 1;
+                }
+            }
+        ],
+        "oLanguage": {                                             //自定义内容——国际化
+            "sLengthMenu": "每页显示 _MENU_ 条记录",
+            "sZeroRecords": "抱歉， 没有找到",
+            //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+            "sInfo": "共 _TOTAL_ 个属性",
+            "sInfoEmpty": "没有数据",
+            "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+            "oPaginate": {
+                "sFirst": "首页" ,
+                "sPrevious": "前一页",
+                "sNext": "后一页",
+                "sLast": "尾页"
+            },
+            "sZeroRecords": "没有检索到数据",
+        },
     } );
 }
 
@@ -147,6 +152,9 @@ function gotostep3()
     $('#myTabContent [href="#step3"]').tab('show');
 }
 
+/*  点击添加用户和查看属性按钮都调用该方法
+    添加用户，传入参数为adduser
+*/
 function show_detail(obj){
     var cid = $(obj).parent().prevAll().length  ;
     var rid = $(obj).parent().parent().prevAll().length;
@@ -156,19 +164,32 @@ function show_detail(obj){
         if(table_added == ""){
             $.ajaxSettings.async = false;
             var userattr_table ="";
+            /*
+                返回值实例：
+                "MANDATORY":"Y",
+                "NAME":"PROFILE_EXPORT_LD_LIBRARY_PATH",
+                "FAMILY_ID":"FCAT00000117",
+                "CITYPE_NAME":"OS_USER",
+                "CI_TYPE_FID":"FCIT00000007",
+                "CHANGE_LOG":"initialization",
+                "VALUE_TYPE":null,
+                "OWNER":null,
+                "DISPLAYNAME":null,
+                "DESCRIPTION":null
+            */
             $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
-            user_attr = data ;
+                user_attr = data ;
             })
             for(var i = 0; i < user_attr.length; i++){
-            userattr_table += "<tr><td>" + user_attr[i]["NAME"] +"</td>"                    +
-                               "<td><input type=\"text\" class=\"form-control\" id = \"" + user_attr[i]["FAMILY_ID"] + "\"/></td>"+
+                userattr_table += "<tr><td>" + user_attr[i]["NAME"] +"</td>"                    +
+                              "<td><input type=\"text\" class=\"form-control\" id = \"" + user_attr[i]["FAMILY_ID"] + "\"/></td>"+
                               "<td><input type=\"text\" class=\"form-control\" id = \"description_" + user_attr[i]["FAMILY_ID"] + "\"/></td>"+
-                              "<td><input type=\"text\" class=\"form-control\" id = \"owner_" + user_attr[i]["FAMILY_ID"] + "\"/></td>";
+                              "<td><input type=\"text\" class=\"form-control\" id = \"owner_" + user_attr[i]["FAMILY_ID"] + "\"/></td></tr>";
             }
             $("#add_user_table").append(userattr_table);
             table_added = "y";
         }
-            $("#add_user_div").show();
+        $("#add_user_div").show();
         adduser_or_showuser = "add";
     }else{
         $.ajaxSettings.async = false;//取消ajax的异步作用，让全局变量在函数结束前，就能改变。
@@ -177,11 +198,11 @@ function show_detail(obj){
             });
         $.getJSON("/ajax_get_citype_all_attr?ci_type_fid=FCIT00000007", function(data) {
             user_attr = data ;//NAME+FAMILY_ID
-        })	 
+        })
         var userattr_html = "";
         //alert(user_attr.length);
         for(var i = 0; i < user_attr.length; i++){
-        	  var k = 0 ;
+            var k = 0 ;
             for(var j = 0 ; j < default_user_attr.length ; j++ ){
                 if(user_attr[i]["FAMILY_ID"] == default_user_attr[j]["TYPE_FID"]){
                     userattr_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-5\">"+user_attr[i]["NAME"] +
@@ -202,9 +223,7 @@ function show_detail(obj){
     }
   
 }
-
-function adduser()
-{
+function adduser(){
     //alert($("#FCAT00000027").id()); $("#modal-userattr input[type=text]")
     //var list = $("#modal-userattr input[type=text]");
     //for (var i= 0;i<list.length-2;i++){
@@ -213,22 +232,32 @@ function adduser()
    //alert(list[0].id);
    // alert(user_attr_list['FCAT00000118']);
    
-    var username = $("#user_name").val();
-    var userdescription = $("#user_description").val();  
+    var username = $("#adduser_ci_value").val();
+    var user_description = $("#adduser_ci_description").val();
+    var user_owner = $("#adduser_ci_owner").val();
+    
+    //添加user ci到new_user_ci数组中
     new_user_ci[username] = new Array();
-    new_user_ci[username][0] =  userdescription;
+    new_user_ci[username][0] = username;
+    new_user_ci[username][1] = user_description;
+    new_user_ci[username][2] = user_owner;
+    
+    //添加该user下的所有属性到new_user_attr数组中
     new_user_attr[username] = new Array();
-    for (var i = 0 ; i < user_attr.length-1 ; i++){
-        new_user_attr[username][i] = new Array();
-        new_user_attr[username][i][0] = user_attr[i]["FAMILY_ID"];
-        var fid = user_attr[i]["FAMILY_ID"];
-        new_user_attr[username][i][1] = $("#"+fid).val();
-        new_user_attr[username][i][2] = $("#description_"+fid).val();
-        new_user_attr[username][i][2] = $("#owner_"+fid).val();
-        new_user_attr[username][i][4] = user_attr[i]["NAME"];
+    for (var attr = 0 ; attr < user_attr.length ; attr++){
+        var fid = user_attr[attr]["FAMILY_ID"];
+        new_user_attr[username][attr] = new Array();
+        
+        //0：family_id   1：value   2：description    3：owner     4：ci_attr_type
+        new_user_attr[username][attr][0] = fid;
+        new_user_attr[username][attr][1] = $.trim($("#"+fid).val());
+        new_user_attr[username][attr][2] = $.trim($("#description_"+fid).val());
+        new_user_attr[username][attr][3] = $.trim($("#owner_"+fid).val());
+        new_user_attr[username][attr][4] = $.trim(user_attr[attr]["NAME"]);
     }
-    var html = "<tr><td>Add</td><td>"+ username +"</td><td>"+ userdescription +"</td><td><button type=\"button\" " +
-               " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";   
+    var html = "<tr><td><input checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/></td><td>"+ 
+               username +"</td><td>"+ user_description +"</td><td><button type=\"button\" " +
+               " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";
     $("#baselineuserlist").append(html);
 
    	//表格隐藏
@@ -236,7 +265,6 @@ function adduser()
    	$("#add_user_div :input").each(function () { 
         $(this).val(""); 
     })
-   	
 }
 function show_detail_new(obj){
     var userattr_html = "";
@@ -256,31 +284,121 @@ function show_detail_new(obj){
 }
 function get_val(){
     var allattr = "";
+    var ci_fid_host = "";
+    var url_create_user_ci = "";
+    var url_create_user_attr = "";
+    var url_create_cirela_host_user = "";
+    
+    //创建host
+    $.post(url_create_host_ci,function(data){
+        ci_fid_host = data;
+    });
+    
     for (user in new_user_ci) {
-        alert(user);
-    }
-    for(user in new_user_attr){
+        //创建user ci
+        var ci_fid_user = "";
+        url_create_user_ci = "/ajax_ci?ciname=" + new_user_ci[user][0] + "&ci_type_fid=FCIT00000007";
+        if (new_user_ci[user][1] != "")
+            url_create_user_ci += "&description=" + new_user_ci[user][1];
+        if (new_user_ci[user][2] != "")
+            url_create_user_ci += "&owner=" + new_user_ci[user][2];
+        
+        $.post(url_create_user_ci, function(data){ ci_fid_user = data; })
+        
+        //创建host CI与user CI的以来关系
+        url_create_cirela_host_user = "/ajax_cirela?source_fid=" + ci_fid_host +
+                                      "&target_fid=" + ci_fid_user +
+                                      "&relation=REFERENCE";
+        $.post(url_create_cirela_host_user, function(data){ })
+        
+        //创建user CI的属性
         for (attr in new_user_attr[user]){
-            //$.post(url,function(data){alert(data);})
-            allattr += "fid:="+new_user_attr[user][attr][0]+"&value:="+
-                       new_user_attr[user][attr][1] + new_user_attr[user][attr][2];
+            var tmp_attr_type_fid = new_user_attr[user][attr][0];
+            var tmp_attr_value = new_user_attr[user][attr][1];
+            var tmp_attr_description = new_user_attr[user][attr][2];
+            var tmp_attr_owner = new_user_attr[user][attr][3];
+            
+            url_create_user_attr = "/ajax_post_attr?cifid=" + ci_fid_user;
+            //判断属性是否输入，若无输入，则不添加该属性到user中
+            if (tmp_attr_value != "")
+                url_create_user_attr += "&ciattr_type_fid=" + tmp_attr_type_fid +
+                                        "&value=" + tmp_attr_value;
+            else
+                continue;    
+
+            if (tmp_attr_description != "")
+                url_create_user_attr += "&description=" + tmp_attr_description;
+            if (tmp_attr_owner != "")
+                url_create_user_attr += "&owner=" + tmp_attr_owner;
+            $.post(url_create_user_attr, function(data){})
         }
     }
-   // alert(allattr);
 }
 function gotostep4()
 {
-    $("#hostbaseline tr:eq(0) th:eq(0)").text($("#os").val());
-    $("#databaseline tr:eq(0) th:eq(0)").text($("#os").val());
-    $("#safebaseline tr:eq(0) th:eq(0)").text($("#os").val());
-    $("#appbaseline tr:eq(0) th:eq(0)").text($("#os").val());
-    $("#tradebaseline tr:eq(0) th:eq(0)").text($("#os").val());
     $(".ystep").setStep(4);
     $('#myTabContent [href="#step4"]').tab('show');
+    
+    $('#baselinelist').dataTable( {
+        "bAutoWidth": false,                                        //页面自动宽度
+        "processing" : true,
+        "bPaginate": false,                                        //页面分页（右下角）
+        "bFilter": false, //过滤功能
+        "bSort": false, //排序功能
+        "bInfo": false ,//页脚信息
+        "ajax" : {
+            "url" : "/ajax_get_baseline_list",
+            "dataSrc" : "",
+            "async" : false, 
+            "bDeferRender": true,
+        },
+        "aoColumns": [
+            { "data": "TYPE"},
+            { "data": "DISPLAYNAME"},
+            { "data": "DESCRIPTION" },
+            { "data": ""},
+        ],
+        "columnDefs": [
+            {
+            "targets": 0,
+            "mRender" : function(data, type, full){
+                    return "<input type = \"checkbox\" name=\"host_selected\"/>";
+                }
+            },
+        ],
+        "oLanguage": {                                             //自定义内容——国际化
+            "sLengthMenu": "每页显示 _MENU_ 条记录",
+            "sZeroRecords": "抱歉， 没有找到",
+            //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+            "sInfo": "共 _TOTAL_ 个属性",
+            "sInfoEmpty": "没有数据",
+            "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+            "oPaginate": {
+                "sFirst": "首页" ,
+                "sPrevious": "前一页",
+                "sNext": "后一页",
+                "sLast": "尾页"
+            },
+            "sZeroRecords": "没有检索到数据",
+        },
+    } );
 }
 
 function gotostep5()
 {
+    //根据step4中选择的基线生成url
+    
+    var baselinelist = new Array();
+    var tmp = "";
+
+    $.getJSON("/ajax_ci?tag=BASELINE:SE_RHEL6.3_X64" , function(data) {
+        for(var i =0 ; i< data.length;i++){
+            //这里给个数组，将target ci的family id拿到并保存到数组中
+            //这个数组应该是全局变量，在get_val函数中执行，并将host ci与基线相关的ci建立关系
+            alert(data[i]["FAMILY_ID"])
+        }
+    });
+    
     $(".ystep").setStep(5);
     $('#myTabContent [href="#step5"]').tab('show');
 
@@ -326,7 +444,7 @@ function newip(){
         managedbynetwork = "不被NetworkManager管理";
     }
     //alert(bonging+ipaddr+ipname+subnetmask+netgate+loadwhenboot);
-    var str = "<div class=\"input-group  col-md-11\"  >"                               +
+    var str = "<div class=\"input-group  col-md-11\"  >"                                              +
               "<table class=\"table table-bordered\">"                                                +
               "<thead><tr><th class=\"col-md-5\">IP名称</th><th>"+ipname+"</th></tr></thead>"         +
               "<tbody>"                                                                               +

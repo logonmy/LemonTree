@@ -8,7 +8,7 @@ $(document).ready(function(){
             "bPaginate": false,                                        //页面分页（右下角）
             "sDom" : '<"toolbar_'+ $cilist[i] +'">frti',               //自定义组件排版
             "ajax" : {
-                "url" : "/ajax_getci?cifid=" + $cilist[i],
+                "url" : "/ajax_ciattr?ci_fid=" + $cilist[i],
                 "dataSrc" : "",
                 "async" : false, 
                 "bDeferRender": true

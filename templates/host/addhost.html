@@ -62,8 +62,6 @@ $var cssfiles: ystep.css
                 <div class="col-md-1 col-md-offset-2">
                     <button href="#step2" id="buttonswitch"  class="btn btn-info" 
                         onclick="gotostep2()"> 下一步 </button> 
-                    <button id="addos"  class="btn btn-info" 
-                        onclick="creat_host_ci()"> 创建HOST </button> 
                 </div>
             </div>
         </div>
@@ -71,57 +69,55 @@ $var cssfiles: ystep.css
         <!-- 填写用户配置,step2 -->
         <div class="tab-pane fade col-md-12 "
               style="margin-top:0%;position:relative;" id="step2">
-            <div class="input-group  col-md-12 " style="margin-top:0%;position:relative;">
+            <div class="col-md-12 " style="margin-top:0%;position:relative;">
                 <h3>步骤二: 用户配置</h3>
-                <div class="panel-group" id="defaultuser">
-                	  <!--</div>-->
-                    <div class="panel-heading">
-                        <input type="button" value="点击添加用户" onclick="show_detail('adduser')" class="btn btn-default" style="float:right">
-                    </div>
-                    <div style="margin-top:40px;">
-                        <table id="baselineuserlist" class="table table-bordered" 
-                            cellspacing="0" width="100%" >
-                        <thead >
-                            <tr class="active">
-                                <th> </th>
-                                <th width="30%">用户名</th>
-                                <th width="65%">描  述</th>
-                                <th> </th>
-                            </tr>
-                        </thead>
-                        </table>
-                    </div>
-                    <hr/>
-                    <div class="col-md-12"  style="display:none" id="add_user_div">
-                        <table  class="table table-bordered" id="add_user_table"
-                                cellspacing="0" width="100%" >
-                            <tr class="active">
-                                <th>属性名称</th>
-                                <th>属性值</th>
-                                <th>描  述</th>
-                                <th>属  主</th>
-                            </tr>
-                            <tr>
-                                <td>用户名</td>
-                                <td><input type="text" id="user_name" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                            </tr>
-                            
-                        </table>
-                        <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
-                        <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
-                    </div>
-                </div>
             </div>
+
+            <div class="panel-heading" style="margin-top:40px;">
+                <input type="button" value="点击添加用户" onclick="show_detail('adduser')" 
+                    class="btn btn-default" style="float:right">
+            </div>
+            <div style="margin-top:40px;">
+                <table id="baselineuserlist" class="table table-bordered" cellspacing="0" width="100%" >
+                    <thead >
+                        <tr class="active">
+                            <th> </th>
+                            <th width="30%">用户名</th>
+                            <th width="65%">描  述</th>
+                            <th>查看属性</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <hr/>
+            <div style="display:none" id="add_user_div">
+                <table  class="table table-bordered" id="add_user_table" cellspacing="0" width="100%" >
+                    <tr class="active">
+                        <th>属性名称</th>
+                        <th>属性值</th>
+                        <th>描  述</th>
+                        <th>属  主</th>
+                    </tr>
+                    <tr>
+                        <td>用户名</td>
+                        <td><input type="text" id="adduser_ci_value" class="form-control"></td>
+                        <td><input type="text" id="adduser_ci_description"class="form-control"></td>
+                        <td><input type="text" id="adduser_ci_owner" class="form-control"></td>
+                    </tr>
+                    
+                </table>
+                <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
+                <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
+            </div>
+
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
                     <button href="#step1" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="backtostep1()">上一步</button>
+                        onclick="backtostep1()">上一步</button>
                 </div>
                 <div class="col-md-1 col-md-offset-2">
-                    <button href="#step3" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="gotostep3()">下一步</button> 
+                    <button href="#step4" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                        onclick="gotostep4()">下一步</button> 
                 </div>
                 <input type="button" class="btn btn-info" onclick="get_val()" value="get">
             </div>
@@ -130,9 +126,10 @@ $var cssfiles: ystep.css
         
 
         <!--//填写网络配置,step3,start-->
-        <div class="tab-pane fade col-md-offset-4 col-md-6"  style="margin-top:0%;height:80%;position:relative;" id="step3">
-            <div class="input-group  col-md-6 "   style="margin-top:0%;height:80%;position:relative">
-                <h2 style ="float:left;">步骤三:网络配置</h2>
+        <div class="tab-pane fade col-md-12 "
+              style="margin-top:0%;position:relative;" id="step3">
+            <div class="input-group  col-md-12 " style="margin-top:0%;position:relative;">
+                <h3>步骤三: 网络配置</h3>
             </div>  
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
@@ -147,72 +144,35 @@ $var cssfiles: ystep.css
         </div>
 
         <!--//填写基线配置,step4,start-->
-        <div class="tab-pane fade  col-md-offset-4 col-md-6" id="step4" style="margin-top:0%;height:80%;position:relative;">
-            <div class="input-group  col-md-6 "   style="margin-top:0%;height:80%;position:relative">
-                <h2 style ="float:left;">4.基线配置<small>选择需要配置的基线</small></h2>
-                <div class="input-group  col-md-12 ">
-                    <input type="checkbox" style="margin-left:5%"  disabled="true"><font  style="margin-left:2%">主机基线</font>
-                    <input type="checkbox" style="margin-left:30%" disabled="true"><font  style="margin-left:2%">安全基线</font>
-                </div>
-                <div class="input-group  col-md-12 ">
-                    <font style="font-size:10px;color:red ;margin-left:5%">*主机基线和安全基线为必选项。以下三项为可选项</font>
-                </div>
-                
-                <div class="input-group  col-md-12 " style="margin-top:0%;">
-                    <input type="checkbox" style="margin-left:5%"  id="chkbx_host" checked="checked"><font>数据库基线</font>
-                    <input type="checkbox" style="margin-left:5%"  id="chkbx_app" checked="checked"> <font>应用基线</font>
-                    <input type="checkbox" style="margin-left:6%"  id="chkbx_trade" checked="checked"><font>交易基线</font>
-                </div>
-                <div class="input-group col-md-12" id="div_hostbaseline">
-                    <font style="font-size:20px;float:left">主机基线:</font>
-                    <select class="form-control" style="width:250px;margin-left:50px">
-                      <option>111</option>
-                    </select>
-                    <input type="button" class="btn btn-default" value="new" style="float:right" onclick="new_baseline('主机基线')">
-                </div>
-                <div class="input-group col-md-12" id="div_safebaseline" style="margin-top:2%">
-                    <font style="font-size:20px;float:left">安全基线:</font>
-                    <select class="form-control" style="width:250px;margin-left:50px">
-                      <option>111</option>
-                    </select>
-                    <input type="button" class="btn btn-default" value="new" style="float:right"  onclick="new_baseline('安全基线')">
-                </div>
-                <div class="input-group col-md-12" id="div_databaseline" style="margin-top:2%">
-                    <font style="font-size:20px;float:left">数据库基线:</font>
-                    <select class="form-control" style="width:250px;margin-left:30px">
-                        <option>111</option>
-                    </select>
-                    <input type="button" class="btn btn-default" value="new" style="float:right"  onclick="new_baseline('数据库基线')">
-                </div>
-                <div class="input-group col-md-12" id="div_appbaseline" style="margin-top:2%">
-                    <font style="font-size:20px;float:left">应用基线:</font>
-                    <select class="form-control" style="width:250px;margin-left:50px">
-                        <option>111</option>
-                    </select>
-                    <input type="button" class="btn btn-default" value="new" style="float:right"  onclick="new_baseline('应用基线')">
-                </div>
-                <div class="input-group col-md-12" id="div_tradebaseline" style="margin-top:2%">
-                    <font style="font-size:20px;float:left">交易基线:</font>
-                    <select class="form-control" style="width:250px;margin-left:50px">
-                        <option>111</option>
-                    </select>
-                    <input type="button" class="btn btn-default" value="new" style="float:right"  onclick="new_baseline('交易基线')">
-                </div>
-                <hr style="margin-top:0%;background-color:#87cefa;height:3px"/>
-                <div class="input-group col-md-12" id="baseline_container" style="margin-top:2%">
-                </div>
+        <div class="tab-pane fade col-md-12"  
+            style="margin-top:0%;position:relative;" id="step4">
+            <div class="col-md-12" style="margin-top:0%;height:45%;position:relative;">
+                <h3>步骤四: 基线配置</h3>
+            </div>
+            <div class="col-md-12" style="margin-top:40px;">
+                <table id="baselinelist" class="table table-bordered table-striped" cellspacing="0" width="100%" >
+                    <thead >
+                        <tr class="active">
+                            <th> </th>
+                            <th>基线名称</th>
+                            <th>基线描述</th>
+                            <th> </th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
-                    <button href="#step3" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="backtostep3()">上一步</button>
+                    <button href="#step2" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                        onclick="backtostep2()">上一步</button>
                 </div>
                 <div class="col-md-1 col-md-offset-2">
                     <button href="#step5" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="gotostep5()">下一步</button> 
+                        onclick="gotostep5()">下一步</button> 
                 </div>
             </div>
         </div>
+        
         <!--//填写基线配置,step4,end-->
         <div class="tab-pane fade col-md-offset-4 col-md-6" id="step5" style="margin-top:0%;height:80%;position:relative;">
             <div class="input-group  col-md-6 " style="margin-top:0%;height:80%;position:relative" id="AdvancedKernel">
@@ -231,19 +191,19 @@ $var cssfiles: ystep.css
                 </div>
             </div>
             <div style="margin-top:50px;" class="col-md-12" >
-                 <div class="col-md-1 col-md-offset-4">
-                     <button href="#step4" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                 onclick="backtostep4()">上一步</button>
-                 </div>
-                 <div class="col-md-1 col-md-offset-2">
-                     <button href="#step1" data-toggle="tab" class="btn btn-success " 
-                         style="margin-left:10%;bottom:0;" onclick="submit()">Submit</button>
-                 </div>
-             </div>
-            
+                <div class="col-md-1 col-md-offset-4">
+                    <button href="#step3" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                onclick="backtostep3()">上一步</button>
+                </div>
+                <div class="col-md-1 col-md-offset-2">
+                    <button href="#step5" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                onclick="gotostep5()">下一步</button> 
+                </div>
+                <input type="button" class="btn btn-info" onclick="get_val()" value="get">
+            </div>
         </div>
     </div>
-    
+
         <!--模态框 查看用户-->
         <div class="modal fade" id="user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -255,11 +215,11 @@ $var cssfiles: ystep.css
                         <h4 class="modal-title" >用户</h4>
                             <div style="margin-top:2%" class="col-md-12">
                                 <font class="col-md-5">用户名</font>
-                                <input type="text" style="margin-left:15%" id="user_name">
+                                <input type="text" style="margin-left:15%" id="modal_user_name">
                             </div>
                             <div style="margin-top:2%" class="col-md-12">
                                 <font class="col-md-5">描述</font>
-                                <input type="text" style="margin-left:15%" id="user_description">
+                                <input type="text" style="margin-left:15%" id="modal_user_description">
                             </div>
                     </div><!--modal-header --> 
                     <div class="modal-body" >
@@ -272,7 +232,7 @@ $var cssfiles: ystep.css
                 </div><!--modal-content -->
            </div><!--modal-dialog -->
           </div><!--modal-fade -->
-          
+
 
     </div>
     
