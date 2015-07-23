@@ -18,7 +18,7 @@ urls = (
         '/hostbaselinelist' ,'hostbaselinelist',
         '/addhost'          ,'addhost',
         
-        '/ajax_gethostlist' ,'ajax_gethostlist',
+        '/ajax_get_hostlist' ,'ajax_get_hostlist',
         
         '/ajax_ci'              , 'cmdbAPI.ajax_ci',
         '/ajax_cirela'          , 'cmdbAPI.ajax_cirela',
@@ -47,7 +47,7 @@ def HttpConnectionClose(connection):
 class index:
     def GET(self):
         name = None
-        render = web.template.render('templates/', base='layout')
+        render = web.template.render('templates/', base='host/layout')
         return render.index(name)
      
     def POST(self):

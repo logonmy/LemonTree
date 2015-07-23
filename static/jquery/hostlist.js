@@ -70,7 +70,7 @@ $(document).ready(function(){
         "bPaginate": true,                                        //页面分页（右下角）
         "aLengthMenu":  [[10, 25, 50, -1], ["每页10条", "每页25条", "每页50条", "显示所有数据"]],
         "ajax" : {
-            "url" : "/ajax_gethostlist",
+            "url" : "/ajax_get_hostlist",
             "dataSrc" : "",
             "async" : false, 
             "bDeferRender": true

@@ -45,6 +45,7 @@ class ajax_ci:
         conn.request(method = "GET",url = url)
         data = conn.getresponse().read()
         HttpConnectionClose(conn)
+        print '1'
         return data
 
     def POST(self):
@@ -132,8 +133,37 @@ class ajax_ciattr:
         HttpConnectionClose(conn)
         return data
 
+    '''
+                    页面传入的参数为：
+                            必输入项：cifid， ciattr_type_fid，value
+                            可选输入项：description， owner
+    '''
     def POST(self):
-        pass
+        url_params = web.input(description=None, owner=None)
+        cifid = url_params.get('cifid')
+        ciattr_type_fid = url_params.get('ciattr_type_fid')
+        ciattr_value = url_params.get('value')
+        
+        conn  =  HttpConnectionInit()
+        if cifid is None or ciattr_type_fid is None or ciattr_value is None:
+            return ERR_URL_WITHTOUT_NECESSARY_ATTR
+        
+        params = {'ci_fid': cifid, 'ci_attrtype_fid': ciattr_type_fid,
+                  'value' : ciattr_value}
+            
+        if url_params.description is not None:
+            params['description'] = url_params.description
+        
+        if url_params.owner is not None:
+            params['owner'] = url_params.owner
+        
+        params = urllib.urlencode(params)
+        conn.request("POST", "/ciattr", params)
+        response = conn.getresponse()
+        result = response.read()
+        HttpConnectionClose(conn)
+        print response.status
+        return result
     
 class ajax_citype:
     def GET(self):
@@ -180,25 +210,6 @@ class ajax_ciattrtype:
     def POST(self):
         pass
 
-class ajax_get_ci_all_attr:
-    def GET(self):
-        url_ciattr = "/ciattr"
-        token_init = 0
-        result = web.input(cifid = None, ci_type_fid = None)
-        conn  =  HttpConnectionInit()
-        
-        if result.cifid :
-            if token_init == 0:
-                url_ciattr += "?ci_fid=" + result.cifid
-                token_init = 1
-            else:
-                url_ciattr += "&ci_fid=" + result.cifid
-        
-        conn.request(method = "GET",url = url_ciattr)
-        data = conn.getresponse().read()
-        HttpConnectionClose(conn)
-        return data
-
 class ajax_get_citype_all_attr:
     def GET(self):
         url_citypeattr = "/ciattrtype"
@@ -222,7 +233,7 @@ class ajax_get_citype_all_attr:
 gethostlist类不仅仅是获取了ci，而且还要显示一些属性，所以，这个是两个api合并后的结果
 不能直接ajax_ci，单独提出来作为一个类，相应hostlist页面
 '''    
-class ajax_gethostlist:
+class ajax_get_hostlist:
     def GET(self):
         conn  =  HttpConnectionInit()
         #返回主机所有CI TYPE

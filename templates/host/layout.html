@@ -9,17 +9,17 @@
     <meta name="viewport" http-equiv="Content-type"
     	content="text/html ;charset = utf-8" />
     <!--加载的CSS文件-->
-    <link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./static/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="./static/css/dataTables.bootstrap.css">
     <link rel="stylesheet" type="text/css" href="./static/css/dataTables.tableTools.css">
     <link rel="stylesheet" type="text/css" href="./static/css/editor.bootstrap.css">
     <!--加载的JS文件-->
-    <script src="../static/jquery/jquery.js"></script>
-    <script src="../static/jquery/bootstrap.js"></script>
-    <script src="../static/jquery/bootstrap.min.js"></script>
-    <script src="../static/jquery/jquery.dataTables.js"></script>
-    <script src="../static/jquery/jquery.dataTables.min.js"></script>
-    <script src="../static/jquery/dataTables.bootstrap.js"></script>
+    <script src="./static/jquery/jquery.js"></script>
+    <script src="./static/jquery/bootstrap.js"></script>
+    <script src="./static/jquery/bootstrap.min.js"></script>
+    <script src="./static/jquery/jquery.dataTables.js"></script>
+    <script src="./static/jquery/jquery.dataTables.min.js"></script>
+    <script src="./static/jquery/dataTables.bootstrap.js"></script>
     
     <!--代码循环将页面额外需要的css文件加载，如果不需要加载额外的变量，
         则将cssfiles变量置为空即可  -->
@@ -30,7 +30,7 @@
         则将jqueryfiles变量置为空即可  -->
     $if content.jqueryfiles:
         $for f in content.jqueryfiles.split():
-            <script src="../static/jquery/$f"></script>
+            <script src="./static/jquery/$f"></script>
 
 </head>
 <body>
