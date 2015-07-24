@@ -11,14 +11,16 @@ ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+
 urls = (
-        '/index'            ,'index',
-        '/hostinfo'         ,'hostinfo',
-        '/hostlist'         ,'hostlist',
-        '/hostbaselinelist' ,'hostbaselinelist',
-        '/addhost'          ,'addhost',
+        '/index'            , 'index',
+        '/hostinfo'         , 'hostinfo',
+        '/hostlist'         , 'hostlist',
+        '/baselinelist'     , 'baselinelist',
+        '/baselineinfo'     , 'baselineinfo',
+        '/addhost'          , 'addhost',
         
-        '/ajax_get_hostlist' ,'ajax_get_hostlist',
+        '/ajax_get_hostlist'    , 'cmdbAPI.ajax_get_hostlist',
         
         '/ajax_ci'              , 'cmdbAPI.ajax_ci',
         '/ajax_cirela'          , 'cmdbAPI.ajax_cirela',
@@ -58,7 +60,7 @@ class hostinfo:
         server = web.input(host = "slave1")     #页面url中传入的参数：主机名
         render = web.template.render('templates/host/', base='layout_info')
         if server is None:
-            return render.hostinfo()
+            return web.template.render('templates/host/', base='layout').hostlist()
         
         conn  =  HttpConnectionInit()
         #返回主机所有CI TYPE
@@ -112,14 +114,35 @@ class hostlist:
     def POST(self):
         pass
 
-class hostbaselinelist:
+class baselinelist:
     def GET(self):
-        render = web.template.render('templates/host/', base='layout')
-        return render.hostbaselinelist()
+        render = web.template.render('templates/host/', base='layout_info')
+        return render.baselinelist()
     
     def POST(self):
         pass
-    
+
+class baselineinfo:
+    def GET(self):
+        result = web.input(type=None)
+        render = web.template.render('templates/host/', base='layout_info')
+        if result is None:
+            return web.template.render('templates/host/', base='layout_info').baselinelist()
+        
+        #返回主机所有CI TYPE
+        url_ci = "/ci?tag=" + result.type
+        conn.request(method = "GET",url = url_ci)
+        data = json.loads(conn.getresponse().read())
+
+        displayname_list = []
+        cifid_list = []
+        for each in data:
+            displayname_list.append(each["TYPE_DISPLAYNAME"])
+            cifid_list.append(each["FAMILY_ID"])
+
+        return render.baselineinfo(displayname_list, cifid_list)
+        
+
 class addhost:
     def GET(self):
         render = web.template.render('templates/host/', base='layout_info')
@@ -127,5 +150,8 @@ class addhost:
          
  
 if __name__ == "__main__":
+    global conn 
+    conn =  HttpConnectionInit()
     app = web.application(urls, globals())
     app.run()
+    HttpConnectionClose(conn)

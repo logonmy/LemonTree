@@ -8,7 +8,7 @@ from OracleConnector import OracleConnector
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
 
 reload(sys)
-sys.setdefaultencoding('utf-8')
+#sys.setdefaultencoding('utf-8')
 
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
     return httplib.HTTPConnection(host, port)
@@ -244,19 +244,16 @@ class ajax_get_hostlist:
         list_host = []                      #OS列表，保存所有主机
         #获取所有主机列表，每个OS信息对应一个字典
         for ci in formatdata:
-            temp_dict = {}
-            if ci["DESCRIPTION"] is None:
-                temp_dict["DESCRIPTION"] = ""
-            else:
-                temp_dict["DESCRIPTION"] = ci["DESCRIPTION"].encode('utf-8')
-            
-            cifid = ci["FAMILY_ID"].encode('utf-8')
-            url_ciattr = "/ciattr?ci_fid=" + cifid
+            temp_dict= {}
+            temp_dict["NAME"] = ci["NAME"]
+            temp_dict["DESCRIPTION"] = ci["DESCRIPTION"]
+
+            url_ciattr = "/ciattr?ci_fid=" + ci["FAMILY_ID"]
             conn.request(method="GET", url = url_ciattr)
             data_ciattr = json.loads(conn.getresponse().read())
             #遍历OS的所有属性，将所有属性保存为key-value形式
             for eachattr in data_ciattr:
-                temp_dict[eachattr["CIAT_NAME"].encode('utf-8')] = eachattr["VALUE"].encode('utf-8')
+                temp_dict[eachattr["CIAT_NAME"]] = eachattr["VALUE"]
                 
             list_host.append(temp_dict)
         
@@ -276,7 +273,7 @@ class ajax_get_baseline_list:
     def GET(self):
         formatdata = []
         db = web.database(dbn='oracle', user='host', pw='host123', db='cffexcmdb')
-        sql = '''select id, type, displayname, description from t_baseline'''
+        sql = 'select id, type, displayname, description from t_baseline'
         baseline_list = db.query(sql)
         for item in baseline_list:
             formatdata.append(item)

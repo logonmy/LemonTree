@@ -14,10 +14,8 @@
     <link rel="stylesheet" type="text/css" href="./static/css/dataTables.tableTools.css">
     <link rel="stylesheet" type="text/css" href="./static/css/editor.bootstrap.css">
     <!--加载的JS文件-->
-    <script src="./static/jquery/jquery.js"></script>
-    <script src="./static/jquery/bootstrap.js"></script>
+    <script src="./static/jquery/jquery.min.js"></script>
     <script src="./static/jquery/bootstrap.min.js"></script>
-    <script src="./static/jquery/jquery.dataTables.js"></script>
     <script src="./static/jquery/jquery.dataTables.min.js"></script>
     <script src="./static/jquery/dataTables.bootstrap.js"></script>
     
@@ -35,20 +33,19 @@
 </head>
 <body>
     <!-- 页面底层导航栏 -->
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">CMDB</a>
         </div>
         <div>
             <ul class="nav navbar-nav navbar-left">
-                <li class="active"><a href="#" class="dropdown-toggle"
-                    data-toggle="dropdown">主机<b class="caret"></b></a>
+                <li ><a href="#" class="dropdown-toggle" data-toggle="dropdown">主机<b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="./index.php">主机列表</a></li>
-                        <li><a href="./host/addserver.php">新增主机</a></li>
+                        <li><a href="hostlist">主机列表</a></li>
+                        <li><a href="addhost">新增主机</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">基线列表</a></li>
-                        <li><a href="#">新增基线</a></li>
+                        <li><a href="baselinelist">基线列表</a></li>
+                        <li><a href="addbaseline">新增基线</a></li>
                     </ul></li>
                 <li><a href="#">应用</a></li>
             </ul>

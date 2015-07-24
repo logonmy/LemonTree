@@ -30,20 +30,19 @@
 </head>
 <body>
     <!-- 页面底层导航栏 -->
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="navbar-header">
             <a class="navbar-brand" href="#">CMDB</a>
         </div>
         <div>
             <ul class="nav navbar-nav navbar-left">
-                <li class="active"><a href="#" class="dropdown-toggle"
-                    data-toggle="dropdown">主机<b class="caret"></b></a>
+                <li><a href="#" class="dropdown-toggle" data-toggle="dropdown">主机<b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="./index.php">主机列表</a></li>
-                        <li><a href="./host/addserver.php">新增主机</a></li>
+                        <li><a href="hostlist">主机列表</a></li>
+                        <li><a href="addhost">新增主机</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">基线列表</a></li>
-                        <li><a href="#">新增基线</a></li>
+                        <li><a href="baselinelist">基线列表</a></li>
+                        <li><a href="addbaseline">新增基线</a></li>
                     </ul></li>
                 <li><a href="#">应用</a></li>
             </ul>
@@ -78,7 +77,7 @@
 </body>
     <!--代码循环将页面额外需要的jquery文件加载，如果不需要加载额外的变量，
         则将jqueryfiles变量置为空即可  -->
-    $if content.jqueryfiles:
-        $for f in content.jqueryfiles.split():
-            <script src="./static/jquery/$f"></script>
+$if content.jqueryfiles:
+    $for f in content.jqueryfiles.split():
+        <script src="./static/jquery/$f"></script>
 </html>
