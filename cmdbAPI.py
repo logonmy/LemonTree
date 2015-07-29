@@ -4,17 +4,13 @@ import sys
 import httplib, urllib
 import json
 from OracleConnector import OracleConnector
+import code
 
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
 
 reload(sys)
 #sys.setdefaultencoding('utf-8')
 
-def HttpConnectionInit(host = '192.168.1.3', port = 8080):
-    return httplib.HTTPConnection(host, port)
-
-def HttpConnectionClose(connection):
-    connection.close()
 
 class ajax_ci:
     def GET(self):
@@ -23,7 +19,6 @@ class ajax_ci:
         result = web.input(citype_name = None, name=None, tag=None,  \
                            priority=None, owner=None, type_fid=None, \
                            family_id=None)
-        conn  =  HttpConnectionInit()
         
         page_attr = {'citype_name' : result.citype_name,                #CI TYPE的名字
                      'name'        : result.name,                       #CI 名字
@@ -42,10 +37,10 @@ class ajax_ci:
                 else:
                     url += "&" + key + "=" + value
         
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url)
         data = conn.getresponse().read()
-        HttpConnectionClose(conn)
-        print '1'
+        code.HttpConnectionClose(conn)
         return data
 
     def POST(self):
@@ -57,8 +52,7 @@ class ajax_ci:
                      'priority'     : result.priority,
                      'owner'        : result.owner,
                      }
-         
-        conn  =  HttpConnectionInit()
+        
         if page_attr['name'] is None or page_attr['ci_type_fid'] is None:
             return ERR_URL_WITHTOUT_NECESSARY_ATTR
          
@@ -67,10 +61,12 @@ class ajax_ci:
                 del page_attr[key]
          
         params = urllib.urlencode(page_attr)
+        conn = code.HttpConnectionInit()
         conn.request("POST", "/ci", params)
         response = conn.getresponse()
         result = response.read()
-        HttpConnectionClose(conn)
+        
+        code.HttpConnectionClose(conn)
         return result
 
 class ajax_cirela:
@@ -79,7 +75,6 @@ class ajax_cirela:
     
     def POST(self):
         result = web.input(owner = None)
-        conn  =  HttpConnectionInit()
         page_attr = {'source_fid' : result.source_fid,                #CI family_id
                      'target_fid' : result.target_fid,                #CI family_id
                      'relation'   : result.relation,                  #CI relation name
@@ -95,10 +90,12 @@ class ajax_cirela:
                 del page_attr[key]
          
         params = urllib.urlencode(page_attr)
+        conn = code.HttpConnectionInit()
         conn.request("POST", "/cirela", params)
         response = conn.getresponse()
         result = response.read()
-        HttpConnectionClose(conn)
+        
+        code.HttpConnectionClose(conn)
         return result
     
 class ajax_ciattr:
@@ -108,7 +105,6 @@ class ajax_ciattr:
         result = web.input(citype_name = None, ciat_name=None, ci_name=None,  \
                            type_fid=None, owner=None, ci_fid=None, \
                            family_id=None, time=None)
-        conn  =  HttpConnectionInit()
         
         page_attr = {'citype_name' : result.citype_name,
                      'ciat_name'   : result.ciat_name,
@@ -127,10 +123,11 @@ class ajax_ciattr:
                     tokent_init = 1
                 else:
                     url += "&" + key + "=" + value
-        
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url)
         data = conn.getresponse().read()
-        HttpConnectionClose(conn)
+        
+        code.HttpConnectionClose(conn)
         return data
 
     '''
@@ -144,7 +141,6 @@ class ajax_ciattr:
         ciattr_type_fid = url_params.get('ciattr_type_fid')
         ciattr_value = url_params.get('value')
         
-        conn  =  HttpConnectionInit()
         if cifid is None or ciattr_type_fid is None or ciattr_value is None:
             return ERR_URL_WITHTOUT_NECESSARY_ATTR
         
@@ -158,11 +154,12 @@ class ajax_ciattr:
             params['owner'] = url_params.owner
         
         params = urllib.urlencode(params)
+        conn = code.HttpConnectionInit()
         conn.request("POST", "/ciattr", params)
         response = conn.getresponse()
         result = response.read()
-        HttpConnectionClose(conn)
-        print response.status
+        
+        code.HttpConnectionClose(conn)
         return result
     
 class ajax_citype:
@@ -171,7 +168,6 @@ class ajax_citype:
         token_init = 0
         result = web.input(name = None, description=None, owner=None, \
                            family_id=None, time=None)
-        conn  =  HttpConnectionInit()
         
         page_attr = {'name'         : result.name,                   #CI TYPE的名字
                      'description'  : result.description,
@@ -187,10 +183,11 @@ class ajax_citype:
                     tokent_init = 1
                 else:
                     url += "&" + key + "=" + value
-
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url)
         data = conn.getresponse().read()
-        HttpConnectionClose(conn)
+        
+        code.HttpConnectionClose(conn)
         return data
 
     def POST(self):
@@ -215,7 +212,6 @@ class ajax_get_citype_all_attr:
         url_citypeattr = "/ciattrtype"
         token_init = 0
         result = web.input(ci_type_fid = None)
-        conn  =  HttpConnectionInit()
         
         if result.ci_type_fid :
             if token_init == 0:
@@ -223,10 +219,11 @@ class ajax_get_citype_all_attr:
                 token_init = 1
             else:
                 url_citypeattr += "&ci_type_fid=" + result.ci_type_fid
-        
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url_citypeattr)
         data = conn.getresponse().read()
-        HttpConnectionClose(conn)
+        
+        code.HttpConnectionClose(conn)
         return data
 
 '''
@@ -235,9 +232,9 @@ gethostlist类不仅仅是获取了ci，而且还要显示一些属性，所以�
 '''    
 class ajax_get_hostlist:
     def GET(self):
-        conn  =  HttpConnectionInit()
         #返回主机所有CI TYPE
         url_citype = "/ci?citype_name=HOST_OS"
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url_citype)
         formatdata = json.loads(conn.getresponse().read())
         
@@ -257,16 +254,17 @@ class ajax_get_hostlist:
                 
             list_host.append(temp_dict)
         
-        HttpConnectionClose(conn)    
+        code.HttpConnectionClose(conn)
         return json.dumps(list_host, indent = 4,ensure_ascii=False, separators = (',',':'))
         
 class ajax_get_baseline_osuser:
     def GET(self):
-        conn = HttpConnectionInit()
         url = "/ci?citype_name=OS_USER&tag=BASELINE:OS_RHEL6.3_X64"
+        conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url)
         formatdata = json.loads(conn.getresponse().read())
         
+        code.HttpConnectionClose(conn)
         return json.dumps(formatdata, indent = 4,ensure_ascii=False, separators = (',',':'))
     
 class ajax_get_baseline_list:
@@ -278,7 +276,7 @@ class ajax_get_baseline_list:
         for item in baseline_list:
             formatdata.append(item)
         formatdata = json.dumps(formatdata, indent = 4,ensure_ascii=False, separators = (',',':'))
-
+        
         return formatdata
         
 class ajax_post_attr:
@@ -292,8 +290,6 @@ class ajax_post_attr:
         cifid = url_params.get('cifid')
         ciattr_type_fid = url_params.get('ciattr_type_fid')
         ciattr_value = url_params.get('value')
-        
-        conn  =  HttpConnectionInit()
         if cifid is None or ciattr_type_fid is None or ciattr_value is None:
             return ERR_URL_WITHTOUT_NECESSARY_ATTR
         
@@ -307,10 +303,11 @@ class ajax_post_attr:
             params['owner'] = url_params.owner
         
         params = urllib.urlencode(params)
+        conn = code.HttpConnectionInit()
         conn.request("POST", "/ciattr", params)
         response = conn.getresponse()
         result = response.read()
-        HttpConnectionClose(conn)
-        print response.status
+        
+        code.HttpConnectionClose(conn)
         return result
  

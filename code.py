@@ -4,7 +4,6 @@ import sys
 import httplib, urllib
 import json
 from OracleConnector import OracleConnector
-import cmdbAPI
 
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
 
@@ -40,10 +39,13 @@ urls = (
         '/ajax_post_attr', 'cmdbAPI.ajax_post_attr',
        )
 
+
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
+    print "****************************** HTTP CONNECTION INITIALIZATION ..."
     return httplib.HTTPConnection(host, port)
 
 def HttpConnectionClose(connection):
+    print "****************************** HTTP CONNECTION CLOSING ..."
     connection.close()
 
 class index:
@@ -62,9 +64,9 @@ class hostinfo:
         if server is None:
             return web.template.render('templates/host/', base='layout').hostlist()
         
-        conn  =  HttpConnectionInit()
         #返回主机所有CI TYPE
         url_citype = "/citype?owner=OS"
+        conn = HttpConnectionInit()
         conn.request(method = "GET",url = url_citype)
         data_citype = json.loads(conn.getresponse().read())
 
@@ -124,25 +126,31 @@ class baselinelist:
 
 class baselineinfo:
     def GET(self):
-        result = web.input(type=None)
+        result = web.input(type=None, title=None)
         render = web.template.render('templates/host/', base='layout_info')
         if result is None:
             return web.template.render('templates/host/', base='layout_info').baselinelist()
         
         #返回主机所有CI TYPE
         url_ci = "/ci?tag=" + result.type
+        conn  =  HttpConnectionInit()
         conn.request(method = "GET",url = url_ci)
         data = json.loads(conn.getresponse().read())
 
-        displayname_list = []
-        cifid_list = []
+        displayname_list = {}
         for each in data:
-            displayname_list.append(each["TYPE_DISPLAYNAME"])
-            cifid_list.append(each["FAMILY_ID"])
-
-        return render.baselineinfo(displayname_list, cifid_list)
+            typename = each["TYPE_DISPLAYNAME"]
+            cifid = each["FAMILY_ID"]
+            if displayname_list.get(typename) is None:
+                displayname_list[typename] = []
+            displayname_list[typename].append(cifid)
         
-
+        title = result.title
+        if title is None:
+            title = result.type
+        HttpConnectionClose(conn)
+        return render.baselineinfo(displayname_list, title)
+        
 class addhost:
     def GET(self):
         render = web.template.render('templates/host/', base='layout_info')
@@ -150,8 +158,5 @@ class addhost:
          
  
 if __name__ == "__main__":
-    global conn 
-    conn =  HttpConnectionInit()
     app = web.application(urls, globals())
     app.run()
-    HttpConnectionClose(conn)
