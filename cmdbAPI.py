@@ -269,9 +269,23 @@ class ajax_get_baseline_osuser:
     
 class ajax_get_baseline_list:
     def GET(self):
+        result = web.input(tag = None)
         formatdata = []
+        conditionList = []
+        condition = ""
         db = web.database(dbn='oracle', user='host', pw='host123', db='cffexcmdb')
-        sql = 'select id, type, displayname, description from t_baseline'
+        
+        if result.tag:
+            conditionList = result.tag.split('|')
+            conditionList = [ "type='" + x + "'" for x in conditionList]
+            
+            condition = " or ".join(conditionList)
+
+        if condition:
+            sql = 'select id, type, displayname, description from t_baseline where ' + condition
+        else:
+            sql = 'select id, type, displayname, description from t_baseline'
+        
         baseline_list = db.query(sql)
         for item in baseline_list:
             formatdata.append(item)

@@ -41,11 +41,9 @@ urls = (
 
 
 def HttpConnectionInit(host = '192.168.1.3', port = 8080):
-    print "****************************** HTTP CONNECTION INITIALIZATION ..."
     return httplib.HTTPConnection(host, port)
 
 def HttpConnectionClose(connection):
-    print "****************************** HTTP CONNECTION CLOSING ..."
     connection.close()
 
 class index:
@@ -59,54 +57,120 @@ class index:
         
 class hostinfo:
     def GET(self):
-        server = web.input(host = "slave1")     #页面url中传入的参数：主机名
+        server = web.input()     #页面url中传入的参数：主机名和执行的类型
         render = web.template.render('templates/host/', base='layout_info')
         if server is None:
             return web.template.render('templates/host/', base='layout').hostlist()
-        
-        #返回主机所有CI TYPE
-        url_citype = "/citype?owner=OS"
+
+        db = web.database(dbn='oracle', user='host', pw='host123', db='cffexcmdb')
         conn = HttpConnectionInit()
-        conn.request(method = "GET",url = url_citype)
-        data_citype = json.loads(conn.getresponse().read())
+        #获取与该主机(CI)具有关系的所有CI项
+        conn.request(method = "GET",url = "/cirela?sourcename=" + server.host)
+        data = json.loads(conn.getresponse().read())
 
-        list_citype = []
-        for citype in data_citype:
-            temp_dict = {}
-            for key,value in citype.items():
-                o_key = key.encode('utf-8')
-                if not value:
-                    o_value = ""
+        baselist = []                       #保存该主机应用的基线类型
+        #保存该主机非基线TAG的CI Dict，其中，以CITYPE作为key，value为属于这个TYPE的CI组成的list
+        ciDictWithoutTag = {}
+        #遍历该CI项，将基线CI与非基线CI分别保存到不同的列表中
+        for ci in data:
+            conn.request(method = "GET",url = "/ci?family_id=" + ci["TARGET_FID"].encode('utf-8') )
+            resultCIList = json.loads(conn.getresponse().read())
+         
+            for each in resultCIList:
+                if each["TAG"]:
+                    baselist.append(each["TAG"])
                 else:
-                    o_value = value.encode('utf-8') 
-                temp_dict[o_key] = o_value
-                
-            list_citype.append(temp_dict)
+                    if not ciDictWithoutTag.has_key(each['CITYPE_NAME']):
+                        ciDictWithoutTag[each['CITYPE_NAME']] = []
+                    ciDictWithoutTag[each['CITYPE_NAME']].append(each)
+                    
+        baselist = list(set(baselist))     
+#        baselist = [ "type='" + x + "'" for x in baselist]
+        baselist = "|".join(baselist)
 
-        #返回对应主机名下的所有CI
-        url_ci = "/cirela?sourcename=" + server.host
-        conn.request(method = "GET",url = url_ci)
-        data_ci = json.loads(conn.getresponse().read())
+#        data_baseline = []
+#        sql = 'select id, type, displayname, description from t_baseline where ' + baseurl
+#        baseline_list = db.query(sql)
+#        for item in baseline_list:
+#            temp_dict = {'DISPLAYNAME' : item['DISPLAYNAME'].encode('utf-8'),
+#                         'TYPE'        : item['TYPE'].encode('utf-8'),
+#                         'DESCRIPTION' : item['DESCRIPTION'].encode('utf-8'),
+#                         }
+#            data_baseline.append(temp_dict)
         
-        dict_ci = {}
-        for ci in data_ci:
-            temp_cidict = {}
-            if ci["TARGET_TYPE_FID"].encode('utf-8') not in dict_ci:
-                dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')] = []
-            for key,value in ci.items():
-                o_key = key.encode('utf-8')
-                if not value:
-                    o_value = ""
-                else:
-                    o_value = value.encode('utf-8')
-                temp_cidict[o_key] = o_value
-            dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')].append(temp_cidict)
-
+            
+        #返回主机所有CI TYPE
+#         url_citype = "/citype?owner=OS"
+#         conn = HttpConnectionInit()
+#         conn.request(method = "GET",url = url_citype)
+#         data_citype = json.loads(conn.getresponse().read())
+# 
+#         list_citype = []
+#         for citype in data_citype:
+#             temp_dict = {}
+#             for key,value in citype.items():
+#                 o_key = key.encode('utf-8')
+#                 if not value:
+#                     o_value = ""
+#                 else:
+#                     o_value = value.encode('utf-8') 
+#                 temp_dict[o_key] = o_value
+#                 
+#             list_citype.append(temp_dict)
+# 
+#         #返回对应主机名下的所有CI
+#         url_ci = "/cirela?sourcename=" + server.host
+#         conn.request(method = "GET",url = url_ci)
+#         data_ci = json.loads(conn.getresponse().read())
+#         
+#         dict_ci = {}
+#         for ci in data_ci:
+#             temp_cidict = {}
+#             if ci["TARGET_TYPE_FID"].encode('utf-8') not in dict_ci:
+#                 dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')] = []
+#             for key,value in ci.items():
+#                 o_key = key.encode('utf-8')
+#                 if not value:
+#                     o_value = ""
+#                 else:
+#                     o_value = value.encode('utf-8')
+#                 temp_cidict[o_key] = o_value
+#             dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')].append(temp_cidict)
+        
+        list_citype = None
+        dict_ci = None
         HttpConnectionClose(conn)
-        return render.hostinfo(list_citype, dict_ci, host = server.host)
+        return render.hostinfo(baselist, ciDictWithoutTag, host = server.host)
 
-    def POST(self):
-        pass
+    def PUT(self):
+        url = "/ciattr"
+        token_init = 0
+        result = web.input(fid=None, value=None, des=None)
+        #页面无提交更新参数时，跳转到原页面
+        if result is None:
+            return web.template.render('templates/host/', base='layout').hostlist()
+        
+        page_attr = {'fid'          : result.fid,                   #CI attr family_id
+                     'value'        : result.value,
+                     'description'  : result.des, 
+                     }
+        
+        for key, value in page_attr.items() :
+            if value :
+                if token_init == 0:
+                    url += "?" + key + "=" + value
+                    token_init = 1
+                else:
+                    url += "&" + key + "=" + value
+        
+        conn  =  HttpConnectionInit()
+        conn.request(method = "PUT",url = url)
+        data = conn.getresponse().read()
+        HttpConnectionClose(conn)
+        #由于CMDB WEB API中post方法执行成功后返回值为ci attr的family id
+        if data.startswith("FCAD"):
+            status = 0;
+        return status
     
 class hostlist:
     def GET(self):
@@ -150,6 +214,37 @@ class baselineinfo:
             title = result.type
         HttpConnectionClose(conn)
         return render.baselineinfo(displayname_list, title)
+    
+    def PUT(self):
+        url = "/ciattr"
+        token_init = 0
+        result = web.input(fid=None, value=None, des=None)
+        #页面无提交更新参数时，跳转到原页面
+        if result is None:
+            return web.template.render('templates/host/', base='layout_info').baselinelist()
+        
+        page_attr = {'fid'          : result.fid,                   #CI attr family_id
+                     'value'        : result.value,
+                     'description'  : result.des, 
+                     }
+        
+        for key, value in page_attr.items() :
+            if value :
+                if token_init == 0:
+                    url += "?" + key + "=" + value
+                    token_init = 1
+                else:
+                    url += "&" + key + "=" + value
+        
+        conn  =  HttpConnectionInit()
+        conn.request(method = "PUT",url = url)
+        data = conn.getresponse().read()
+        HttpConnectionClose(conn)
+        #由于CMDB WEB API中post方法执行成功后返回值为ci attr的family id
+        if data.startswith("FCAD"):
+            status = 0;
+        return status
+        
         
 class addhost:
     def GET(self):

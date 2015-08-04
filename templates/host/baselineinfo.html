@@ -1,0 +1,36 @@
+$def with (displayname_list, title)
+
+$ cifid = ""
+
+$var title: 主机基线 - $title 详细信息
+$var header: $title 
+$var jqueryfiles: host/baselineinfo.js
+$var cssfiles:
+
+
+<div class="row">
+    <div id="submit_ciattr_changes" style="display:none">
+        <input style="float:right" type="button" class="btn btn-success" value="保存" 
+            onclick="submit_ciattr_changes()">
+    </div>
+$for key, list in displayname_list.items() :
+    <blockquote>$key</blockquote>
+    $for item in list :
+        $ cifid += ";"+ item
+        <div id="div$item"></div>
+        <table id="$item" class="table table-bordered" cellspacing="0" width="100%">
+            <thead>
+                <tr class="active">
+                    <th></th>
+                    <th width="20%">属性名称</th>
+                    <th width="30%">属 性 值</th>
+                    <th width="25%">属性描述</th>
+                    <th width="25%">变更记录</th>
+                </tr>
+            </thead>
+        </table>
+        <hr>
+
+<input type="hidden" id="cifid_list" value="$cifid"/>
+</div>
+
