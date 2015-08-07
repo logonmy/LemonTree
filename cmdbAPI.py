@@ -7,9 +7,13 @@ from OracleConnector import OracleConnector
 import code
 
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
+ERR_POST = 2
+ERR_GET_NULL = 3
+
+ERR_RESULT_LEN = 11
 
 reload(sys)
-#sys.setdefaultencoding('utf-8')
+sys.setdefaultencoding('utf-8')
 
 
 class ajax_ci:
@@ -255,11 +259,12 @@ class ajax_get_hostlist:
             list_host.append(temp_dict)
         
         code.HttpConnectionClose(conn)
+        print list_host
         return json.dumps(list_host, indent = 4,ensure_ascii=False, separators = (',',':'))
         
 class ajax_get_baseline_osuser:
     def GET(self):
-        url = "/ci?citype_name=OS_USER&tag=BASELINE:OS_RHEL6.3_X64"
+        url = "/ci?citype_name=OS_USER&tag=TEMPLATE"
         conn = code.HttpConnectionInit()
         conn.request(method = "GET",url = url)
         formatdata = json.loads(conn.getresponse().read())
@@ -292,6 +297,71 @@ class ajax_get_baseline_list:
         formatdata = json.dumps(formatdata, indent = 4,ensure_ascii=False, separators = (',',':'))
         
         return formatdata
+    
+'''
+函数实现对CI进行完整的复制，包括属于该CI的attribute
+'''
+class ajax_copy_ci:
+    def POST(self):     
+        result = web.input(cifid=None)
+        page_attr = {'fid' : result.cifid}
+        
+        #页面获取无cifid时，异常退出
+        if page_attr['fid'] is None:
+            return ERR_URL_WITHTOUT_NECESSARY_ATTR
+        
+        conn = code.HttpConnectionInit()
+        #查询该ci的所有属性（T_CI的属性），并新增一条相同的ci
+        url_ci = "/ci?family_id=" + page_attr['fid']
+        conn.request(method = "GET",url = url_ci)
+        formatdata = json.loads(conn.getresponse().read())
+        if len(formatdata) != 1:
+            print "[%s] 查询返回的list长度不为1" % self.__class__.__name__
+            return ERR_RESULT_LEN
+        
+        attributes = {
+                      'name'         : formatdata[0]['NAME'],
+                      'ci_type_fid'  : formatdata[0]['TYPE_FID'],
+                      'description'  : formatdata[0]['DESCRIPTION'],
+                      'tag'          : None,
+                      'priority'     : None,
+                      'owner'        : None,
+                      }
+        
+        params = urllib.urlencode(attributes)
+        conn.request("POST", "/ci", params)
+        newcifid = conn.getresponse().read()
+
+        if not newcifid.startswith("FCID"):
+            print "[%s] 新增CI失败，无法获取新增CI FAMILY_ID" % self.__class__.__name__
+            return ERR_POST
+        
+        #查询ci的所有attr
+        url_ciattr = "/ciattr?ci_fid=" + page_attr['fid']
+        conn.request(method = "GET",url = url_ciattr)
+        
+        formatdata = json.loads(conn.getresponse().read())
+        if formatdata is None:
+            print "[%s] 查询的ci不存在" % self.__class__.__name__
+            return ERR_GET_NULL
+        #遍历ci的所有attr，并将attr插入到T_CIATTR表中
+        for attr in formatdata:
+            attr_params = {
+                           'ci_fid'          : newcifid,
+                           'ci_attrtype_fid' : attr['TYPE_FID'],
+                           'value'           : attr['VALUE'], 
+                           'description'     : attr['DESCRIPTION'], 
+                           'owner'           : attr['OWNER'],
+                           }
+            attr_params = urllib.urlencode(attr_params)
+            #将属性插入到新的ci中
+            conn.request("POST", "/ciattr", attr_params)
+            response = conn.getresponse().read()
+            if response != 0:
+                print "[%s] 插入ci attr失败，属性为：%s" % (self.__class__.__name__, attr_params)
+        
+        code.HttpConnectionClose(conn)
+        return newcifid
         
 class ajax_post_attr:
     '''

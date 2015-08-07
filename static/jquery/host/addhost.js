@@ -1,4 +1,4 @@
-var array_url= new Array();//默认加载的用户，现设定最大值为9
+﻿ array_url= new Array();//默认加载的用户，现设定最大值为9
 var array_index1 = 0;
 var array_index2 = 0;
 //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
@@ -25,14 +25,13 @@ var checkbox_baseline_type = 0;
 var checkbox_baseline_displayname = 0;
 var baseline = new Array();
 
+//定义datatable变量，保存step2中userlist table和step3中baseline tables。其目的是解决re-initalization操作
+var vuserlist;
+var vbaselinelist;
 
-function cancel_add_user(){
-	  
-   	$("#add_user_div :input").each(function () {
-        $(this).val(""); 
-    })
-    $("#add_user_div").hide();
-}
+//全局变量，保存step5中是否显示添加完毕后的table
+var table_status = "hidden";
+
 
 $(function(){
     $("#chkbx_host").change(function() {
@@ -60,99 +59,132 @@ $(function(){
         }
     });      
 })
+/*
+    实现wizard导航界面中，上一步、下一步按钮点击跳转功能
+*/
+function backtostep1()
+{
+    $(".ystep").setStep(1);
+    $('#myTabContent [href="#step1"]').tab('show');
+}
+
+function backtostep2()
+{
+    $(".ystep").setStep(2);
+    $('#myTabContent [href="#step2"]').tab('show');
+}
+
+function backtostep3()
+{
+    $(".ystep").setStep(3);
+    $('#myTabContent [href="#step3"]').tab('show');
+}
+
+function backtostep4()
+{
+    $(".ystep").setStep(4);
+    $('#myTabContent [href="#step4"]').tab('show');
+}
 
 function gotostep2()
 {
     //将Step1中填写的信息生成对应的POST url语句
     var step1_hostname = document.getElementById("step1_host_name").value;
+    var step1_osversion = $("#osversion").find("option:selected").text(); 
     var step1_description = document.getElementById("step1_description").value;
     url_create_host_ci = "/ajax_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001";
     if ($.trim(step1_description) != "") 
         url_create_host_ci += "&description=" + step1_description;
     
-    url_create_host_ci = "/ajax_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001&description=" + step1_description;
+    //url_create_host_ci = "/ajax_ci?ciname="+ step1_hostname +"&ci_type_fid=FCIT00000001&description=" + step1_description;
     
     $(".ystep").setStep(2);
     $('#myTabContent [href="#step2"]').tab('show');
-    $('#baselineuserlist').dataTable( {
-        "bAutoWidth": false,                                        //页面自动宽度
-        "processing" : true,
-        "bPaginate": false,                                        //页面分页（右下角）
-        "bFilter": false, //过滤功能
-        "bSort": false, //排序功能
-        "bInfo": false ,//页脚信息
-        "ajax" : {
-            "url" : "/ajax_get_baseline_osuser",
-            "dataSrc" : "",
-            "async" : false, 
-            "bDeferRender": true
-        },
-        "aoColumns": [
-             { "data": "NAME"},
-             { "data": "NAME"},
-             { "data": "DESCRIPTION" },
-             { "data": ""},
-             { "data": "FAMILY_ID"},
-             { "data": "NAME" },
-        ],
-        "columnDefs": [ 
-            {
-            "targets": 0,
-            "mRender" : function(data, type, full){
-                    if(data=="root"){
-                        return "<input disabled=true " +
-                                   "checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/>";
-                    }else{
-                         return "<input type = \"checkbox\" name=\"host_selected\"/>";
+                  
+    if (typeof vuserlist == 'undefined') {
+        vuserlist = $('#baselineuserlist').dataTable( {
+            "bAutoWidth": false,                                        //页面自动宽度
+            "processing" : true,
+            "bPaginate": false,                                        //页面分页（右下角）
+            "bFilter": false, //过滤功能
+            "bSort": false, //排序功能
+            "bInfo": false ,//页脚信息
+            "ajax" : {
+                "url" : "/ajax_get_baseline_osuser",
+                "dataSrc" : "",
+                "async" : false, 
+                "bDeferRender": true
+            },
+            "aoColumns": [
+                 { "data": "NAME"},
+                 { "data": "NAME"},
+                 { "data": "DESCRIPTION" },
+                 { "data": ""},
+                 { "data": "FAMILY_ID"},
+                 { "data": "NAME" },
+            ],
+            "columnDefs": [ 
+                {
+                "targets": 0,
+                "mRender" : function(data, type, full){
+                        if(data=="root"){
+                            return "<input disabled=true " +
+                                       "checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/>";
+                        }else{
+                             return "<input type = \"checkbox\" name=\"host_selected\"/>";
+                        }
+                    }
+                },
+                {
+                "targets": 3,
+                "mRender" : function(data, type, full){
+                        return "<button type=\"button\" class=\"btn btn-link\" onclick=\"show_detail(this)\">" +
+                               "查看属性</button>";
+                    }
+                },
+                {
+                "targets": 4 ,
+                "visible":false,
+                "mRender" : function(data, type, full){
+                    array_url[array_index1] =  new Array();
+                    array_url[array_index1][array_index2] = data;
+                    array_index2 = array_index2 + 1;
+                    return 0;
+                    //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
+                    }
+                },
+                {
+                	
+                "targets": 5 ,
+                "visible":false,
+                "mRender" : function(data, type, full){
+                     array_url[array_index1][array_index2] = data;
+                     array_index1 = array_index1 + 1;
+                     array_index2 = array_index2 - 1;
+                     return 0;
                     }
                 }
+            ],
+            "oLanguage": {                                             //自定义内容——国际化
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfo": "共 _TOTAL_ 个属性",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "oPaginate": {
+                    "sFirst": "首页" ,
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                },
+                "sZeroRecords": "没有检索到数据",
             },
-            {
-            "targets": 3,
-            "mRender" : function(data, type, full){
-                    return "<button type=\"button\" class=\"btn btn-default\" onclick=\"show_detail(this)\">" +
-                           "点击查看属性</button>";
-                }
-            },
-            {
-            "targets": 4 ,
-            "visible":false,
-            "mRender" : function(data, type, full){
-                array_url[array_index1] =  new Array();
-                array_url[array_index1][array_index2] = data;
-                array_index2 = array_index2 + 1;
-                return 1;
-                //array_url用来存储默认用户的id和name，array_index1,2用来表示array_url的下标
-                }
-            },
-            {
-            	
-            "targets": 5 ,
-            "visible":false,
-            "mRender" : function(data, type, full){
-                 array_url[array_index1][array_index2] = data;
-                 array_index1 = array_index1 + 1;
-                 array_index2 = array_index2 - 1;
-                 return 1;
-                }
-            }
-        ],
-        "oLanguage": {                                             //自定义内容——国际化
-            "sLengthMenu": "每页显示 _MENU_ 条记录",
-            "sZeroRecords": "抱歉， 没有找到",
-            //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
-            "sInfo": "共 _TOTAL_ 个属性",
-            "sInfoEmpty": "没有数据",
-            "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
-            "oPaginate": {
-                "sFirst": "首页" ,
-                "sPrevious": "前一页",
-                "sNext": "后一页",
-                "sLast": "尾页"
-            },
-            "sZeroRecords": "没有检索到数据",
-        },
-    } );
+        } );
+    }else{
+        //vuserlist.fnClearTable( 0 );
+        vuserlist.fnDraw();
+    }
 }
 
 function gotostep3()
@@ -163,8 +195,7 @@ function gotostep3()
 
 function gotostep4()
 {
-//    for (var i=0;i<array_url.length;i++)
-//        //alert(array_url[i][0]);
+    //添加用户代码。注意：该段代码应该在gotostep3中，由于step3功能暂时未实现，故暂时在该函数中实现
     var length_user = $("#baselineuserlist tr").length;
     for(var i = 1 ; i < length_user ; i ++)
     {
@@ -192,62 +223,66 @@ function gotostep4()
     $(".ystep").setStep(4);
     $('#myTabContent [href="#step4"]').tab('show');
     
-    $('#baselinelist').dataTable( {
-        "bAutoWidth": false,                                        //页面自动宽度
-        "processing" : true,
-        "bPaginate": false,                                        //页面分页（右下角）
-        "bFilter": false, //过滤功能
-        "bSort": false, //排序功能
-        "bInfo": false ,//页脚信息
-        "ajax" : {
-            "url" : "/ajax_get_baseline_list",
-            "dataSrc" : "",
-            "async" : false, 
-            "bDeferRender": true,
-        },
-        "aoColumns": [
-            { "data": "TYPE"},
-            { "data": "DISPLAYNAME"},
-            { "data": "DESCRIPTION" },
-        ],
-        "columnDefs": [
-            {
-            "targets": 0,
-            "mRender" : function(data, type, full){
-            	      baseline[checkbox_baseline_type] = new Array();
-            	      baseline[checkbox_baseline_type][checkbox_baseline_displayname] = data;
+    if (typeof vbaselinelist == 'undefined') {
+        vbaselinelist = $('#baselinelist').dataTable( {
+            "bAutoWidth": false,                                        //页面自动宽度
+            "processing" : true,
+            "bPaginate": false,                                        //页面分页（右下角）
+            "bFilter": false, //过滤功能
+            "bSort": false, //排序功能
+            "bInfo": false ,//页脚信息
+            "ajax" : {
+                "url" : "/ajax_get_baseline_list",
+                "dataSrc" : "",
+                "async" : false, 
+                "bDeferRender": true,
+            },
+            "aoColumns": [
+                { "data": "TYPE"},
+                { "data": "DISPLAYNAME"},
+                { "data": "DESCRIPTION" },
+            ],
+            "columnDefs": [
+                {
+                "targets": 0,
+                "mRender" : function(data, type, full){
+                      baseline[checkbox_baseline_type] = new Array();
+                      baseline[checkbox_baseline_type][checkbox_baseline_displayname] = data;
                       checkbox_baseline_displayname = checkbox_baseline_displayname + 1;
-                    return "<input type = \"checkbox\" name=\"host_selected\" />";
-
-                }
+                      return "<input type = \"checkbox\" name=\"host_selected\" />";
+                    }
+                },
+                {
+                "targets": 1,
+                "mRender" : function(data, type, full){
+                      baseline[checkbox_baseline_type][checkbox_baseline_displayname] = data;   
+                      checkbox_baseline_displayname = 0;
+                      checkbox_baseline_type = checkbox_baseline_type + 1;
+                      return data;
+                    }
+                },            
+                
+            ],
+            "oLanguage": {                                             //自定义内容——国际化
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfo": "共 _TOTAL_ 个属性",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "oPaginate": {
+                    "sFirst": "首页" ,
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                },
+                "sZeroRecords": "没有检索到数据",
             },
-            {
-            "targets": 1,
-            "mRender" : function(data, type, full){
-            	      baseline[checkbox_baseline_type][checkbox_baseline_displayname] = data;   
-            	      checkbox_baseline_displayname = 0;
-            	      checkbox_baseline_type = checkbox_baseline_type + 1;
-            	      return data;
-                }
-            },            
-            
-        ],
-        "oLanguage": {                                             //自定义内容——国际化
-            "sLengthMenu": "每页显示 _MENU_ 条记录",
-            "sZeroRecords": "抱歉， 没有找到",
-            //"sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
-            "sInfo": "共 _TOTAL_ 个属性",
-            "sInfoEmpty": "没有数据",
-            "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
-            "oPaginate": {
-                "sFirst": "首页" ,
-                "sPrevious": "前一页",
-                "sNext": "后一页",
-                "sLast": "尾页"
-            },
-            "sZeroRecords": "没有检索到数据",
-        },
-    } );
+        } );
+    }else{
+        vbaselinelist.fnDraw();
+    }
+    
 }
 
 function gotostep5()
@@ -348,7 +383,56 @@ function show_detail(obj){
     }
   
 }
-function adduser(){
+
+function show_configuration_kernel() {
+    var table_row = "";
+    //后续可以加上不可为空项添加has-error has-feedback属性
+    if ($('#kernel_name').val() == "" || $('#kernel_value').val() == ""){
+        alert("内核参数名与内核参数值不可为空，请确认！");
+        return
+    }
+
+    table_row = "<tr>" + 
+                "<td>" + $('#kernel_name').val() + "</td>" +
+                "<td>" + $('#kernel_value').val() + "</td>" +
+                "<td>" + $('#kernel_des').val() + "</td>" +
+                "<td><button type=\"button\" class=\"btn btn-link\" onclick=\"table_del()\">删除</button></td>" +
+                "</tr>";
+    $('#table_kernellist').append(table_row);
+    $('#div_kernellist').show();
+        
+
+    
+}
+
+function show_configuration_crontab() {
+    var table_row = "";
+    var croncmd = "";
+    if ($('#cron_min').val() == "" || $('#cron_hour').val() == ""
+        || $('#cron_dmon').val() == "" || $('#cron_mon').val() == ""
+        || $('#cron_week').val() == "" || $('#cron_user').val() == "" 
+        || $('#cron_cmd').val() == "" ){
+        alert("调度时间、调度用户及调度命令不可为空，请确认！");
+        return;
+    }
+    
+    croncmd = $('#cron_min').val() + " " + $('#cron_hour').val() + " " +
+                $('#cron_dmon').val() + " " + $('#cron_mon').val() + " " +
+                $('#cron_week').val() + " " + $('#cron_user').val() + " " +
+                $('#cron_cmd').val(); 
+    table_row = "<tr>" + 
+                "<td>" + croncmd + "</td>" +
+                "<td>" + $('#cron_des').val() + "</td>" +
+                "<td><button type=\"button\" class=\"btn btn-link\" onclick=\"table_del()\">删除</button></td>" +
+                "</tr>";
+    $('#table_crontablist').append(table_row);
+    $('#div_crontablist').show();
+        
+
+    
+}
+
+function submit_add_user(){
     //alert($("#FCAT00000027").id()); $("#modal-userattr input[type=text]")
     //var list = $("#modal-userattr input[type=text]");
     //for (var i= 0;i<list.length-2;i++){
@@ -382,22 +466,30 @@ function adduser(){
     }
     var html = "<tr><td><input checked=\"checked\" type = \"checkbox\" name=\"host_selected\"/></td><td>"+ 
                username +"</td><td>"+ user_description +"</td><td><button type=\"button\" " +
-               " class=\"btn btn-default\" onclick=\"show_detail_new(this)\" >点击查看属性</button></td></tr>";
+               " class=\"btn btn-link\" onclick=\"show_detail_new(this)\" >查看属性</button></td></tr>";
     $("#baselineuserlist").append(html);
 
-   	//表格隐藏
-   	$("#add_user_div").hide();
-   	$("#add_user_div :input").each(function () { 
+    //表格隐藏
+    $("#add_user_div").hide();
+    $("#add_user_div :input").each(function () { 
         $(this).val(""); 
     })
 }
+
+function cancel_add_user(){
+    $("#add_user_div :input").each(function () {
+        $(this).val(""); 
+    })
+    $("#add_user_div").hide();
+}
+
 function show_detail_new(obj){
     var userattr_html = "";
     var col = $(obj).parent().parent().prevAll().length + 1;
     var selector = "#baselineuserlist tr:eq(" + col +") td:eq(1)";
     for (var i = 0 ; i < new_user_attr[$(selector).text()].length ; i++ ){
         userattr_html += "<div style=\"margin-top:2%\" class=\"col-md-12\"><font class=\"col-md-5\">"+
-   	                     new_user_attr[$(selector).text()][i][4] +
+                         new_user_attr[$(selector).text()][i][4] +
                          "</font><input type=\"text\" style=\"margin-left:15%\" value=\""            + 
                          new_user_attr[$(selector).text()][i][1] +"\"></div>"; 
                         
@@ -408,7 +500,19 @@ function show_detail_new(obj){
     //alert(new_user_attr[$(selector).text()][0][3]);
 }
 
-function get_val(){
+//step5中，生成的配置表格中，点击删除链接弹出模态框
+function table_del()
+{
+    $("#modal_info").modal("show");
+}
+
+//模态框中点击确定后触发的动作
+function modal_sure()
+{
+
+}
+
+function submit_add_host(){
     var allattr = "";
     var ci_fid_host = "";                           //新增主机时生成的family id
     var url_create_user_ci = "";                    //执行创建user ci的url
@@ -416,29 +520,34 @@ function get_val(){
     var url_create_cirela_host_user = "";           //执行创建host与user cirelation的url
     var url_create_cirela_host_baseline = "";       //执行创建host与baseline相关的所有CI的relation的url
     
-    //创建host
+    //1. 创建host
     $.post(url_create_host_ci,function(data){
         ci_fid_host = data;
     });
     
-    //遍历用户数组，创建用户
-    //遍历默认的用户, 添加与host的依赖关系
+    //1.1 创建host的attributs
+    
+    //2. 遍历用户数组，创建用户
+    //2.1 遍历模板用户, 创建模板用户并添加与host的依赖关系
     for(var i=0;i<checkbox_default_user.length;i++) {
         var ci_fid_user = checkbox_default_user[i];
-        url_create_cirela_host_user = "/ajax_cirela?source_fid=" + ci_fid_host +
-                                      "&target_fid=" + ci_fid_user +
-                                      "&relation=REFERENCE";
-        alert("cirela:host and user" + url_create_cirela_host_user );
-        $.post(url_create_cirela_host_user,function(data){ });
+        //2.1.1 创建模板用户ci
+        url_create_template_user = "/ajax_copy_ci?fid=" + ci_fid_user;
+        $.post(url_create_template_user,function(data){ 
+            //2.1.2 建立新增用户与host之间的依赖关系
+            url_create_cirela_host_user = "/ajax_cirela?source_fid=" + ci_fid_host +
+                                          "&target_fid=" + data +
+                                          "&relation=COMPOSITION";
+            $.post(url_create_cirela_host_user, function(data){ });
+        });
     }
-        
-    
-    //遍历新增的用户
+
+    //2.2 遍历新增的用户
     //for (user in new_user_ci){
     for (var i=0;i< checkbox_new_user.length;i++) {
         var user = checkbox_new_user[i];
         alert(user);
-        //创建user ci
+        //2.2.1 创建user ci
         var ci_fid_user = "";
         url_create_user_ci = "/ajax_ci?ciname=" + new_user_ci[user][0] + "&ci_type_fid=FCIT00000007";
         if (new_user_ci[user][1] != "")
@@ -448,13 +557,13 @@ function get_val(){
         
         $.post(url_create_user_ci, function(data){ ci_fid_user = data; })
         
-        //创建host CI与user CI的以来关系
+        //2.2.2 创建host CI与user CI的依赖关系
         url_create_cirela_host_user = "/ajax_cirela?source_fid=" + ci_fid_host +
                                       "&target_fid=" + ci_fid_user +
                                       "&relation=REFERENCE";
         $.post(url_create_cirela_host_user, function(data){ });
         
-        //创建user CI的属性
+        //2.2.3 创建user CI的属性
         for (attr in new_user_attr[user]){
             var tmp_attr_type_fid = new_user_attr[user][attr][0];
             var tmp_attr_value = new_user_attr[user][attr][1];
@@ -493,7 +602,7 @@ function get_val(){
         }
     }
     
-    //创建host与基线相关CI的依赖关系
+    //3. 创建host与基线相关CI的依赖关系
     for (var i=0; i < checkbox_baseline.length;i++){
         alert(checkbox_baseline[i]);
         $.getJSON("/ajax_ci?tag=" + $.trim(checkbox_baseline[i]) , function(data) {
@@ -510,72 +619,6 @@ function get_val(){
     }
     
 }
-
-
-function backtostep1()
-{
-    $(".ystep").setStep(1);
-    $('#myTabContent [href="#step1"]').tab('show');
-
-}
-
-function backtostep3()
-{
-    $(".ystep").setStep(3);
-    $('#myTabContent [href="#step3"]').tab('show');
-}
-
-function backtostep4()
-{
-    $(".ystep").setStep(4);
-    $('#myTabContent [href="#step4"]').tab('show');
-}    
-
-function newip()
-{
-    var ipaddr  = $("#ipaddr").val();
-    var bonging = $("input[name='bonging']:checked").val();
-    var ipname  = $("#ipname").val();
-    var subnetmask  = $("#subnetmask").val();
-    var netgate  = $("#netgate").val();
-    var loadwhenboot ;
-    if($("#loadwhenboot").is(':checked')){
-        loadwhenboot = "开机加载";
-    }
-    else{
-        loadwhenboot = "开机不加载";
-    }
-    var managedbynetwork ;
-    if($("#managedbynetwork").is(':checked')){
-        managedbynetwork = "被NetworkManager管理";
-    }
-    else{
-        managedbynetwork = "不被NetworkManager管理";
-    }
-    //alert(bonging+ipaddr+ipname+subnetmask+netgate+loadwhenboot);
-    var str = "<div class=\"input-group  col-md-11\"  >"                                              +
-              "<table class=\"table table-bordered\">"                                                +
-              "<thead><tr><th class=\"col-md-5\">IP名称</th><th>"+ipname+"</th></tr></thead>"         +
-              "<tbody>"                                                                               +
-              "<tr><td>Ip地址</td><td>" + ipaddr +"</td></tr>"                                        +
-              "<tr><td>子网掩码</td><td>" + subnetmask +"</td></tr>"                                  +
-              "<tr><td>网关地址</td><td>" + netgate +"</td></tr>"                                     +
-              "<tr><td>"+loadwhenboot+"</td><td>" + managedbynetwork +"</td></tr>"                    +
-              "</table>"
-              +"</div>  ";
-    
-    $("#ipalready").append(str);
-    //新增一个ip
-    $("input").filter(":radio").removeAttr("checked");
-    //把已选中的钩去掉
-    $("input").filter(":checkbox").removeAttr("checked");
-    //把已选中的钩去掉
-    var cleartext = $("#IpText  :text");
-  
-    for (var i = 0; i<cleartext.length ; i ++){
-        cleartext[i].value = "";
-    }
-}
   
 $(document).ready(function(){
     $("#ystep").loadStep({
@@ -586,28 +629,18 @@ $(document).ready(function(){
             content: "填写主机基本信息"
         },{
             title: "用户配置",
-            content: "具体账户配置"
+            content: "选择主机所需用户及其用户组"
         },{
             title: "网络配置",
-            content: "各类网络信息"
+            content: "网络地址及路由配置"
         },{
             title: "基线配置",
-            content: "待填充"
+            content: "选择主机基线"
         },{
             title: "高级配置",
-            content: "更高级配置"
+            content: "内核参数、安装包及定时任务"
         }]
     });
     
     var arr = new Array();
-    arr.push("123");
-    arr.push("2234");
-    var i;
-    for(i=0;i<arr.length;i++){
-        //alert(arr[i]);    
-    }
 })
-
-function submit(){
-        
-}

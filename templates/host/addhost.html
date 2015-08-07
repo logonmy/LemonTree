@@ -17,33 +17,26 @@ $var cssfiles: ystep.css
             </div>
             <div class="col-md-12" style="margin-top:30px;">
                 <div class="col-md-2 col-md-offset-1">
-                <span  style="float:left;font-size:18px"  >主机名</span>
+                <span  style="float:left;font-size:18px">主机名</span>
                 </div>
                 <div class="col-md-7" >
                 <input type="text" class="form-control" placeholder="例如：config1" 
                     id="step1_host_name">
                 </div>
             </div>
-            <div style="margin-top:20px;" class="col-md-12" >
+            <div class="col-md-12" style="margin-top:20px;">
                 <div class="col-md-2 col-md-offset-1">
                 <span  style="float:left;font-size:18px" >操作系统版本</span>
                 </div>
                 <div class="col-md-7">
-                <select class="form-control input-md" id="os">
+                <select class="form-control input-md" id="osversion">
                     <option>--请选择OS版本--</option>
                     <option>RedHat Linux 5.5</option>
                     <option>RedHat Linux 6.3</option>
                     <option>Windows XP</option>
+                    <option>Windows 2K8</option>
+                    <option>Windows 2K8R2</option>
                 </select>
-                </div>
-            </div>
-            <div style="margin-top:20px;" class="col-md-12" >
-                <div class="col-md-2 col-md-offset-1">
-                <span  style="float:left;font-size:18px" >内核版本</span>
-                </div>
-                <div class="col-md-7">
-                <input type="text" class="form-control" placeholder="例如：2.6.31" 
-                    id="step1_host_name">
                 </div>
             </div>
             <div style="margin-top:20px;" class="col-md-12" >
@@ -73,9 +66,9 @@ $var cssfiles: ystep.css
                 <h3>步骤二: 用户配置</h3>
             </div>
 
-            <div class="panel-heading" style="margin-top:40px;">
-                <input type="button" value="点击添加用户" onclick="show_detail('adduser')" 
-                    class="btn btn-default" style="float:right">
+            <div class="panel-heading " style="margin-top:40px;">
+                <button onclick="show_detail('adduser')" class="btn btn-primary" style="float:right">
+                    新增用户</button>
             </div>
             <div style="margin-top:40px;">
                 <table id="baselineuserlist" class="table table-bordered" cellspacing="0" width="100%" >
@@ -91,6 +84,7 @@ $var cssfiles: ystep.css
             </div>
             <hr/>
             <div style="display:none" id="add_user_div">
+                <blockquote><p>新增用户</p></blockquote>
                 <table  class="table table-bordered" id="add_user_table" cellspacing="0" width="100%" >
                     <tr class="active">
                         <th>属性名称</th>
@@ -107,7 +101,7 @@ $var cssfiles: ystep.css
                     
                 </table>
                 <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
-                <button  onclick="adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
+                <button  onclick="submit_add_user()" class="btn btn-success" style="margin-left:2%" >保存</button>
             </div>
 
             <div style="margin-top:50px;" class="col-md-12" >
@@ -122,8 +116,6 @@ $var cssfiles: ystep.css
                 
             </div>
         </div>    
-          
-        
 
         <!--//填写网络配置,step3,start-->
         <div class="tab-pane fade col-md-12 "
@@ -152,11 +144,11 @@ $var cssfiles: ystep.css
             <div class="col-md-12" style="margin-top:40px;">
                 <table id="baselinelist" class="table table-bordered table-striped" cellspacing="0" width="100%" >
                     <thead >
-                        <tr class="active">
-                            <th width="5%"> </th>
-                            <th width="30%">基线名称</th>
-                            <th>基线描述</th>
-                        </tr>
+                    <tr class="active">
+                        <th width="5%"> </th>
+                        <th width="30%">基线名称</th>
+                        <th>基线描述</th>
+                    </tr>
                     </thead>
                 </table>
             </div>
@@ -169,69 +161,196 @@ $var cssfiles: ystep.css
                     <button href="#step5" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
                         onclick="gotostep5()">下一步</button> 
                 </div>
-                <input type="button" class="btn btn-info" onclick="get_val()" value="提交">
             </div>
         </div>
         
-        <!--//填写基线配置,step4,end-->
-        <div class="tab-pane fade col-md-offset-4 col-md-6" id="step5" style="margin-top:0%;height:80%;position:relative;">
-            <div class="input-group  col-md-6 " style="margin-top:0%;height:80%;position:relative" id="AdvancedKernel">
-                <h2 style ="float:left;">5.高级配置<small>内核参数</small></h2><input class="btn btn-default" type="button" style="float:right;margin-top:5%" value="新增配置" onclick="addkernel()">
-                <div class="input-group col-md-12">
-                    <font style="font-size:20px">内核参数</font>
-                    <input type="text" style="width:100%">
-                </div>
-                <div class="input-group col-md-12">
-                    <font style="font-size:20px">调度任务</font>
-                    <input type="text" style="width:100%">
-                </div>
-                <div class="input-group col-md-12">
-                    <font style="font-size:20px">自定义安装包</font>
-                    <input type="text" style="width:100%">
+        <!--//高级配置,step5,end-->
+        <div class="tab-pane fade col-md-12"  
+            style="margin-top:0%;position:relative;" id="step5">
+            <div class="col-md-12" style="margin-top:0%;height:45%;position:relative;">
+                <h3>步骤五: 高级配置</h3>
+            </div>
+            <div class="col-md-12" style="margin-top:40px;" id="div_addkernel">
+                <fieldset>
+                    <legend>内核参数</legend>
+                    <form class="form-horizontal">
+                        <div class="form-group col-xs-12 ">
+                            <div class="input-group">
+                                <div class="input-group-addon " >参数名</div>
+                                <input type="text" class="form-control has-error" id="kernel_name" placeholder="例如：kernel.shmall">
+
+                                <div class="input-group-addon">参数值</div>
+                                <input type="text" class="form-control" id="kernel_value" placeholder="例如：16777216">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">参数描述</div>
+                                <input type="text" class="form-control" id="kernel_des" placeholder="输入值：内核参数描述">
+                            </div>
+                        </div>
+                        <div class="form-group col-xs-12">
+                            <button onclick="show_configuration_kernel(table_kernellist)" type="button" class="btn btn-default"  style="float:right">添加配置</button>
+                        </div>
+                    </form>
+                </fieldset>
+                <div style="display:none" id="div_kernellist">
+                    <blockquote>内核参数配置</blockquote>
+                    <table class="table table-bordered table-striped " id="table_kernellist">
+                        <tr class="active">
+                            <td width="25%">参数名</td>
+                            <td width="25%">参数值</td>
+                            <td width="40%">参数描述</td>
+                            <td>操作</td>
+                        </tr>
+                        <tr>
+                            <td width="25%">kernel.shmall</td>
+                            <td width="25%">16777216</td>
+                            <td width="40%">内存大小</td>
+                            <td><button type="button" class="btn btn-link" onclick="table_del()">删除</button></td>
+                        </tr>
+                        <tr>
+                            <td width="27%">kernel.shmall</td>
+                            <td width="28%">16777216</td>
+                            <td width="45%">内存大小</td>
+                            <td><button type="button" class="btn btn-link">删除</button></td>
+                        </tr>
+                        <tr>
+                            <td>kernel.shmall</td>
+                            <td>16777216</td>
+                            <td>内存大小</td>
+                            <td><button type="button" class="btn btn-link">删除</button></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+
+            <div class="col-md-12" style="margin-top:40px;" id="div_addcrontab">
+                <fieldset>
+                    <legend>定时任务</legend>
+                    <form class="form-horizontal">
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">MINUTE</div>
+                                <input type="text" class="form-control" id="cron_min" placeholder="输入值：(0 - 59)">
+                                <div class="input-group-addon">HOUR</div>
+                                <input type="text" class="form-control" id="cron_hour" placeholder="输入值：(0 - 23)">
+                                <div class="input-group-addon">DAY OF MONTH</div>
+                                <input type="text" class="form-control" id="cron_dmon" placeholder="输入值：(1 - 31)">
+                            </div>
+                        </div>
+                    
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">MONTH</div>
+                                <input type="text" class="form-control" id="cron_mon" placeholder="输入值：(1 - 12) OR jan,feb,mar,apr">
+                                <div class="input-group-addon">DAT OF WEEK</div>
+                                <input type="text" class="form-control" id="cron_week" placeholder="输入值：(0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat">
+                                <div class="input-group-addon">USER</div>
+                                <input type="text" class="form-control" id="cron_user" placeholder="输入值：用户名">
+                            </div>
+                        </div>
+                    
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">COMMAND</div>
+                                <input type="text" class="form-control" id="cron_cmd" placeholder="输入值：命令">
+                            </div>
+                        </div>
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">任务描述</div>
+                                <input type="text" class="form-control" id="cron_des" placeholder="输入值：命令">
+                            </div>
+                        </div>
+                        <div class="form-group col-xs-12">
+                            <button onclick="show_configuration_crontab('table_crontablist')" type="button" class="btn btn-default"  style="float:right">添加配置</button>
+                        </div>
+                    </form>
+                </fieldset>
+                <div style="display:none" id="div_crontablist">
+                    <blockquote>定时任务配置</blockquote>
+                    <table class="table table-bordered table-striped" id="table_crontablist">
+                        <tr class="active">
+                            <td width="50%">任务名称</td>
+                            <td width="45%">任务描述</td>
+                            <td>操作</td>
+                        </tr>
+                        <tr>
+                            <td >30 2 * * * root ntpdate 192.168.1.1</td>
+                            <td >每日凌晨2点半进行始终同步</td>
+                            <td><button type="button" class="btn btn-link">删除</button></td>
+                        </tr>
+                        
+                    </table>
+                </div>
+            </div>
+            
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
-                    <button href="#step3" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="backtostep3()">上一步</button>
+                    <button href="#step4" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                        onclick="backtostep4()">上一步</button>
                 </div>
                 <div class="col-md-1 col-md-offset-2">
-                    <button href="#step5" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
-                onclick="gotostep5()">下一步</button> 
+                    <input type="button" class="btn btn-success" onclick="submit_add_host()" value="确认新增">
                 </div>
-                <input type="button" class="btn btn-info" onclick="get_val()" value="get">
             </div>
         </div>
     </div>
 
-        <!--模态框 查看用户-->
-        <div class="modal fade" id="user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div  class="modal-content">
-                    <div class="modal-header" style="height:140px">
-                        <button type="button" class="close" data-dismiss="modal">
-                            &times;
-                        </button>
-                        <h4 class="modal-title" >用户</h4>
-                            <div style="margin-top:2%" class="col-md-12">
-                                <font class="col-md-5">用户名</font>
-                                <input type="text" style="margin-left:15%" id="modal_user_name">
-                            </div>
-                            <div style="margin-top:2%" class="col-md-12">
-                                <font class="col-md-5">描述</font>
-                                <input type="text" style="margin-left:15%" id="modal_user_description">
-                            </div>
-                    </div><!--modal-header --> 
-                    <div class="modal-body" >
-                    	  <h4 class="modal-title" >属性</h4>
-                        <div id="modal-userattr" style="margin-top:10px;"></div>
-                    </div>
-                                            
-                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" >确定</button>
-                </div><!--modal-content -->
-           </div><!--modal-dialog -->
-        </div><!--modal-fade -->
+    <!--模态框 查看用户-->
+<!--    <div class="modal fade" id="user_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div  class="modal-content">
+                <div class="modal-header" style="height:140px">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" >用户</h4>
+                        <div style="margin-top:2%" class="col-md-12">
+                            <font class="col-md-5">用户名</font>
+                            <input type="text" style="margin-left:15%" id="modal_user_name">
+                        </div>
+                        <div style="margin-top:2%" class="col-md-12">
+                            <font class="col-md-5">描述</font>
+                            <input type="text" style="margin-left:15%" id="modal_user_description">
+                        </div>
+                </div>
+                <div class="modal-body" >
+                	  <h4 class="modal-title" >属性</h4>
+                    <div id="modal-userattr" style="margin-top:10px;"></div>
+                </div>
+                                        
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" >确定</button>
+            </div>
+       </div>
+    </div>-->
+    
+    <!--确认删除时，提示输入的模态框-->
+    <div class="modal fade" id="modal_info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div  class="modal-content">
+                <div class="modal-header" style="height:50px">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                    <font><h4>确认操作</h4></font>
+                </div><!--modal-header --> 
+                <div class="modal-body" style="height:25%" >
+                    确认删除该记录？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" 
+                        style="float:right">取消</button>
+                    <button type="button" class="btn btn-success" style="float:right;margin-right:10px" 
+                        onclick="modal_sure()">确定</button>
+                </div>
+            </div><!--modal-content -->
+       </div><!--modal-dialog -->
+    </div><!--modal-fade -->
+
 
 
 </div>

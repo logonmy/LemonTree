@@ -1,68 +1,3 @@
-//var webapiserver = "192.168.1.3";
-//var webapiserver_port = "8080";
-//
-///*  参数备注：fid   ->    ci attribute的family id
-//    change_log为必须输入项，description默认为空
-//    value和owner如果不输入的话，将使用原来的默认值
-//*/
-//function update_ci_attr(fid, change_log, value=null, description=null, owner=null ){
-//    var url = "http://"+webapiserver+":"+webapiserver_port+"/ciattr?fid=" + fid +
-//              "&change_log=" + change_log;
-//    
-//    if (value != null) { url += "&value=" + value; }
-//    if (description != null) { url += "&description=" + description; }
-//    if (owner != null) { url += "&owner=" + owner; }
-//    //url = "http://192.168.1.3:8080/ci?name=niusheng&ci_type_fid=FCIT00000001";
-//    url = "192.168.1.3:8080/ciattr?fid=FCAD00000002&change_log=test&value=3.1.1";
-//    alert(url);
-//    $.post(url, null, function(data){
-//        alert("insert successful");
-//    }).error(function(){
-//        alert("insert failed");
-//    });
-//}
-//
-//function changeToEdit(node, content){ 
-//    node.html("");
-//    var inputObj = $("<input id='ciattrvalue' type='text'/></div>"); 
-//    //插入一个可编辑的 input对象
-//    inputObj.css("border","1").css("background-color",node.css("background-color"))
-//        .css("font-size",node.css("font-size")).css("height","80%")
-//        .css("width", "95%").val(content).appendTo(node) 
-//    $('#ciattrvalue').focus();
-//    
-//    inputObj.click(function(){ 
-//        return false; 
-//    }).keyup(function(event){ 
-//        var keyvalue = event.which; 
-//        if(keyvalue==13){ 
-//            //13 是enter键
-//            //alert(document.getElementById("tmptest").value);
-//            $('#myModal').modal("show");
-//            node.html(content);
-//            $('#submitModify').click(function(){
-//                update_ci_attr("FCAD00000002", "test", "3.1.1");
-//                node.html(node.children("input").val());
-//            });
-//            
-//            $('#cancelModify').click(function(){
-//                node.html(content);
-//            });
-//            
-//            
-////              if(confirm("是否保存？","Yes","No")){ 
-////                  node.html(node.children("input").val()); 
-////              }else{ 
-////                  node.html(content); 
-////              } 
-//        } 
-//        if(keyvalue==27){ 
-//            //27是esc键
-//            node.html(content);
-//        } 
-//    });
-//}
-
 $(document).ready(function(){
     var table = $('#allhostlist').DataTable( {
         "bAutoWidth": false,                                        //页面自动宽度
@@ -77,7 +12,7 @@ $(document).ready(function(){
         },
         "aoColumns": [
             { "data": "NAME" },
-            { "data": "KERNEL_VERSION" },
+            { "data": "OS_VERSION" },
             { "data": "DESCRIPTION" },
         ],
         "columnDefs": [ 

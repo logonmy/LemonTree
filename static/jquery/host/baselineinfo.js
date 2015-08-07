@@ -5,6 +5,7 @@ var update_ciattr = new Object();
 var ciattrfid_array = new Array();
 var ci_name = "";
 var ciattr_fid = "";
+
 $(document).ready(function(){
     $cilist = $('#cifid_list').val().split(';');
     //因为页面中传过来的cilist是以；作为分割的，拼接的时候是以；开头的，顾以下标1开始
@@ -84,7 +85,7 @@ $(document).ready(function(){
                 "sSearch": "搜索：",    
             }
         } );
-        $("#div"+$cilist[i]).append('<h4>'+ ci_name +'</h4>');
+        $("#div"+$cilist[i]).append('<h4>配置项：'+ ci_name +'</h4>');
     }
     
     //实现点击行，变为输入框字段
@@ -205,12 +206,21 @@ function changeToEdit(node, content){
     });
 }
 
+//修改配置后，点击保存按钮后，弹出模态框，需要填写change log
 function submit_ciattr_changes()
+{
+    //弹出模态框，确认修改，并需要填写change log
+    $("#modal_modify").modal("show");
+}
+
+//点击模态框的确定按钮后，执行修改操作
+function modal_changelog()
 {
     var err_input
     var err_fid = ""
     var err_index = 0;
-
+    var attr_changelog = $("#modal_ta_changelog").val();//模态框中textarea的值
+    
     for (item in update_ciattr)
     {
         var attr_fid = item;
@@ -233,6 +243,8 @@ function submit_ciattr_changes()
             str_url += "&value=" + attr_value;
         if (attr_des != undefined)
             str_url += "&des=" + attr_des;
+        if (attr_changelog != undefined)
+            str_url += "&change_log=" + attr_changelog;
         
         $.ajax({
             type: "PUT",
@@ -257,19 +269,3 @@ function submit_ciattr_changes()
             
     location.reload();
 }
-
-//function submit_changes(){
-//    $.ajax({
-//        type: "PUT",
-//        url: "Services/EFService.svc/Members/",
-//        data: "{Email:'test@test.com', ScreenName:'TestUser'}",
-//        contentType: "application/json; charset=utf-8",
-//        dataType: "json",
-//        success: function (data){
-//            
-//        },
-//        error: function (msg) {
-//            
-//        },
-//    });
-//}

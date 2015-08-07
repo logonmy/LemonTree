@@ -34,3 +34,29 @@ $for key, list in displayname_list.items() :
 <input type="hidden" id="cifid_list" value="$cifid"/>
 </div>
 
+<!--确认修改时，提示输入change log的模态框-->
+<div class="modal fade" id="modal_modify" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div  class="modal-content">
+            <div class="modal-header" style="height:50px">
+                <button type="button" class="close" data-dismiss="modal">
+                    &times;
+                </button>
+                <font><h4>ChangeLog</h4></font>
+            </div><!--modal-header --> 
+            <div class="modal-body" style="height:25%" >
+                <div class="form-group">
+                <font>改动日志</font><font color="red" size="1px">  *点击确定后将直接把改动提交至数据库</font>
+                <textarea id="modal_ta_changelog" class="form-control" rows="5" style= "resize:none; "></textarea>
+                </div>                     
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" 
+                    style="float:right">取消</button>
+                <button type="button" class="btn btn-success" style="float:right;margin-right:10px" 
+                    onclick="modal_changelog()">确定</button>
+            </div>
+        </div><!--modal-content -->
+   </div><!--modal-dialog -->
+</div><!--modal-fade -->
+

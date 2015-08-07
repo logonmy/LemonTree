@@ -35,6 +35,8 @@ urls = (
         '/ajax_get_baseline_list'    , 'cmdbAPI.ajax_get_baseline_list',
         '/ajax_get_baseline_osuser'  , 'cmdbAPI.ajax_get_baseline_osuser',
         
+        '/ajax_copy_ci'              , 'cmdbAPI.ajax_copy_ci',
+        
         '/ajax_post_ci' , 'cmdbAPI.ajax_post_ci',
         '/ajax_post_attr', 'cmdbAPI.ajax_post_attr',
        )
@@ -85,57 +87,7 @@ class hostinfo:
                     ciDictWithoutTag[each['CITYPE_NAME']].append(each)
                     
         baselist = list(set(baselist))     
-#        baselist = [ "type='" + x + "'" for x in baselist]
         baselist = "|".join(baselist)
-
-#        data_baseline = []
-#        sql = 'select id, type, displayname, description from t_baseline where ' + baseurl
-#        baseline_list = db.query(sql)
-#        for item in baseline_list:
-#            temp_dict = {'DISPLAYNAME' : item['DISPLAYNAME'].encode('utf-8'),
-#                         'TYPE'        : item['TYPE'].encode('utf-8'),
-#                         'DESCRIPTION' : item['DESCRIPTION'].encode('utf-8'),
-#                         }
-#            data_baseline.append(temp_dict)
-        
-            
-        #返回主机所有CI TYPE
-#         url_citype = "/citype?owner=OS"
-#         conn = HttpConnectionInit()
-#         conn.request(method = "GET",url = url_citype)
-#         data_citype = json.loads(conn.getresponse().read())
-# 
-#         list_citype = []
-#         for citype in data_citype:
-#             temp_dict = {}
-#             for key,value in citype.items():
-#                 o_key = key.encode('utf-8')
-#                 if not value:
-#                     o_value = ""
-#                 else:
-#                     o_value = value.encode('utf-8') 
-#                 temp_dict[o_key] = o_value
-#                 
-#             list_citype.append(temp_dict)
-# 
-#         #返回对应主机名下的所有CI
-#         url_ci = "/cirela?sourcename=" + server.host
-#         conn.request(method = "GET",url = url_ci)
-#         data_ci = json.loads(conn.getresponse().read())
-#         
-#         dict_ci = {}
-#         for ci in data_ci:
-#             temp_cidict = {}
-#             if ci["TARGET_TYPE_FID"].encode('utf-8') not in dict_ci:
-#                 dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')] = []
-#             for key,value in ci.items():
-#                 o_key = key.encode('utf-8')
-#                 if not value:
-#                     o_value = ""
-#                 else:
-#                     o_value = value.encode('utf-8')
-#                 temp_cidict[o_key] = o_value
-#             dict_ci[ci["TARGET_TYPE_FID"].encode('utf-8')].append(temp_cidict)
         
         list_citype = None
         dict_ci = None
@@ -226,6 +178,7 @@ class baselineinfo:
         page_attr = {'fid'          : result.fid,                   #CI attr family_id
                      'value'        : result.value,
                      'description'  : result.des, 
+                     'change_log'   : result.change_log,
                      }
         
         for key, value in page_attr.items() :
