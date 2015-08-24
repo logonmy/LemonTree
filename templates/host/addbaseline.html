@@ -1,0 +1,189 @@
+$def with (citypelist)
+
+$var title: 新增基线
+$var header: 新增基线
+$var jqueryfiles: ystep.js host/addbaseline.js
+$var cssfiles: ystep.css
+
+
+<div class="row">
+
+    <div id="myTabContent" class="tab-content">
+        <!--页面导航滚动工具栏-->
+        <div id = "ystep" class="ystep col-md-12" style="margin-top:2%;text-align:center;"></div>
+        
+        <!-- 填写基线信息,step1 -->
+        
+        <div class="tab-pane fade  in active col-md-10 col-md-offset-1 " style="margin-top:15px;" id="step1">
+            <div class="col-md-12"  style="margin-top:0%;height:45%;">
+                <h3>步骤一:基线信息</h3>
+            </div>
+            <div class="col-md-12" style="margin-top:30px;">
+                <div class="col-md-2 col-md-offset-1">
+                    <span  style="float:left;font-size:18px">基线名称</span>
+                </div>
+                <div class="col-md-7" >
+                <input type="text" class="form-control" placeholder="例如：张江RHEL6.3基线" 
+                    id="input_baseline_name">
+                </div>
+            </div>
+            <div class="col-md-12" style="margin-top:30px;">
+                <div class="col-md-2 col-md-offset-1">
+                    <span  style="float:left;font-size:18px">基线类别</span>
+                </div>
+                <div class="col-md-7" >
+                <input type="text" class="form-control" placeholder="例如：ZJ_OS_RHEL6.3_X64"
+                    id="input_baseline_type">
+                </div>
+            </div>
+            <div style="margin-top:20px;" class="col-md-12" >
+                <div class="col-md-2 col-md-offset-1">
+                <span  style="float:left;font-size:18px" >基线描述</span>
+                </div>
+                <div class="col-md-7">
+                <textarea id="input_baseline_description" class="form-control" 
+                    rows="4" style="margin-top:0;margin-left:0%"></textarea>
+                </div>
+                <br>
+            </div>
+            <div style="margin-top:50px;" class="col-md-12" >
+                <div class="col-md-1 col-md-offset-4">
+                </div>
+                <div class="col-md-1 col-md-offset-2">
+                    <button href="#step2" id="buttonswitch"  class="btn btn-info" 
+                        onclick="gotostep2()"> 下一步 </button> 
+                </div>
+            </div>
+        </div>
+        
+        <!-- 填写基线配置,step2 -->
+        <div class="tab-pane fade col-md-12" style="margin-top:0%;" id="step2">
+            <div class="col-md-12 " style="margin-top:0%;">
+                <h3>步骤二: 基线配置</h3>
+            </div>
+            
+            <div class="col-md-12" style="margin-top:20px;text-align:center;">
+                <form class="form-inline">
+                    <!--配置项名称-->
+                    <div class="form-group" >
+                        <label class="sr-only"></label>
+                        <span  style="font-size:18px" >配置项名称：</span>
+                    </div>
+                    <div class="form-group" id="div_ciname">
+                        <label class="sr-only"></label>
+                        <input type="text" class="form-control" placeholder="" id="input_ciname" style="margin-left:10px;">
+                    </div>
+                    <!--配置项类型-->
+                    <div class="form-group" style="margin-left:40px;">
+                        <label class="sr-only"></label>
+                        <span  style="font-size:18px" >配置项类型：</span>
+                    </div>
+                    <div class="form-group" id="div_citype">
+                        <label class="sr-only"></label>
+                        <select class="form-control" style="margin-left:10px;" id="input_citype">
+                            <option>-- 请选择 --</option>
+                        $for eachcitype in citypelist:
+                            $if not eachcitype['NAME'].startswith('OS'):
+                                $continue
+                            <option value="$eachcitype['FAMILY_ID']">$eachcitype['DISPLAYNAME']</option>
+                        </select>
+                    </div>
+                    <!--配置项描述-->
+                    <div class="form-group" style="margin-left:40px;">
+                        <label class="sr-only"></label>
+                        <span  style="font-size:18px" >配置项描述：</span>
+                    </div>
+                    <div class="form-group" id="div_cides">
+                        <label class="sr-only"></label>
+                        <input type="text" class="form-control" placeholder="" id="input_cides" style="margin-left:10px;">
+                    </div>
+                    
+                    
+                    <div class="form-group" style="margin-left:40px;">
+                        <label class="sr-only"></label>
+                        <button class="btn btn-default" onclick="btn_addci()" type="button">确认添加</button>
+                    </div>
+                    
+                </form>
+
+            </div>
+            
+            <!--隐藏：配置项列表-->
+            <div class="col-md-12" style="display:none;margin-top:5%" id="div_addci">
+                <blockquote>
+                    <p>配置项列表</p>
+                </blockquote>
+                
+                <table  class="table table-bordered" id="table_citype" cellspacing="0" width="100%" >
+                    <tr class="active">
+                        <th width="25%">配置项名称</th>
+                        <th width="25%">配置项类型</th>
+                        <th>配置项描述</th>
+                        <th width="10%">操作</th>
+                    </tr>
+                    
+                </table>
+            </div>
+            
+            <!--隐藏：配置项属性列表-->
+            <div class="col-md-12" style="display:none;margin-top:5%" id="div_addciattr">
+                <blockquote>
+                    <p>配置项详细信息</p>
+                </blockquote>
+                
+                <table  class="table table-bordered" id="table_ciattr" cellspacing="0" width="100%" >
+                    <tr class="active">
+                        <th width="25%">属性名称</th>
+                        <th width="25%">属性值</th>
+                        <th width="50%">描  述</th>
+                    </tr>
+                </table>
+                <button  onclick="cancel_addciattr()" class="btn btn-warning col-md-offset-10" > 取消 </button>
+                <button  onclick="submit_addciattr()" class="btn btn-success" style="margin-left:2%" >保存</button>
+            </div>
+
+            <div style="margin-top:30%;" class="col-md-12" >
+                <div class="col-md-1 col-md-offset-4">
+                    <button href="#step1" data-toggle="tab" class="btn btn-info" style="margin-left:10%;bottom:0;" 
+                        onclick="backtostep1()">上一步</button>
+                </div>
+                <div class="col-md-1 col-md-offset-2">
+                    <button href="#step3" data-toggle="tab" class="btn btn-success" style="margin-left:10%;bottom:0;" 
+                        onclick="btn_createbaseline()">创建基线</button> 
+                </div>
+                
+            </div>
+        </div>    
+
+        <!--//填写确认创建基线,step3,start-->
+        
+        
+    </div>
+    
+    <!--确认删除时，提示输入的模态框-->
+    <div class="modal fade" id="modal_info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div  class="modal-content">
+                <div class="modal-header" style="height:50px">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                    <font><h4>确认操作</h4></font>
+                </div><!--modal-header --> 
+                <div class="modal-body" style="height:25%"id="modal_content" >
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" 
+                        style="float:right">取消</button>
+                    <button type="button" class="btn btn-success" style="float:right;margin-right:10px" 
+                        onclick="modal_sure()">确定</button>
+                </div>
+            </div><!--modal-content -->
+       </div><!--modal-dialog -->
+    </div><!--modal-fade -->
+
+
+
+</div>
+    
+

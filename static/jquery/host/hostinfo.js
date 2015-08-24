@@ -5,6 +5,9 @@ var update_ciattr = new Object();
 var ciattrfid_array = new Array();
 var ci_name = "";
 var ciattr_fid = "";
+//保存点击模态框确定按钮响应的动作 1.changelog时的确定   2.添加完成后的确定
+var modal_action = 0;   
+var changelog = "";
 
 $(document).ready(function(){
     //主机详细信息页面，该主机所应用的基线列表
@@ -16,7 +19,7 @@ $(document).ready(function(){
         "bPaginate": false,                                        //页面分页（右下角）
         "dom": 't',
         "ajax" : {
-            "url" : "/ajax_get_baseline_list?tag=" + $baselinelist,
+            "url" : "/ajax_baselinelist?tag=" + $baselinelist,
             "dataSrc" : "",
             "async" : false, 
             "bDeferRender": true
@@ -122,6 +125,7 @@ $(document).ready(function(){
                 "orderable" : false,
                 "bVisible" : false,
                 "mRender" : function(data, type, full){
+                                ci_name = "";
                                 ci_name = data;
                                 return 0;
                             }
@@ -147,7 +151,7 @@ $(document).ready(function(){
                 "sSearch": "搜索：",    
             }
         } );
-        $("#div"+$cilist[i]).append('<h4>'+ ci_name +'</h4>');
+        $("#div"+$cilist[i]).append('<h4>配置项：'+ ci_name +'</h4>');
     }
     
     //实现点击行，变为输入框字段
@@ -179,7 +183,7 @@ function changeToEdit(node, content){
         ciattr_fid_choosed = node.prev().children().attr("id");
     var node_html = node.html();  
     node.html("");
-    var inputObj = $("<input id='"+input_id+"' type='text'/></div>"); 
+    var inputObj = $("<input id='"+input_id+"' type='text' class='form-control'/></div>"); 
     //插入一个可编辑的 input对象
     inputObj.css("border","1").css("background-color",node.css("background-color"))
         .css("font-size",node.css("font-size")).css("height","120%")
@@ -191,7 +195,7 @@ function changeToEdit(node, content){
     }).keyup(function(event){ 
         var keyvalue = event.which; 
         if(keyvalue==13){//回车键 
-            $("#submit_ciattr_changes").show();
+            $("#div_cichange").show();
             //如果修改后的值与之前值相同，那么不操作
             var afterchange_val = node.children("input").val();
             if(afterchange_val == content)
@@ -231,7 +235,7 @@ function changeToEdit(node, content){
         } 
     }).blur(function()//失去焦点情况
     {
-        $("#submit_ciattr_changes").show();
+        $("#div_cichange").show();
         var afterchange_val = node.children("input").val();
         if(afterchange_val == content)
             node.html(node_html)       
@@ -268,25 +272,46 @@ function changeToEdit(node, content){
     });
 }
 
-function submit_ciattr_changes()
+function submit_cichanges()
 {
-    var err_input
-    var err_fid = ""
-    var err_index = 0;
+    $("#modal_info").modal("show");
+    modal_action = 1;
+    
+}
 
+//模态框中点击确定后触发的动作
+function modal_sure()
+{
+    //显示changelog时，点击确定的动作
+    if (modal_action == 1) {
+        changelog = $('#modal_ta_changelog').val();
+        $('#modal_content').html("开始修改配置...");
+        $('#modal_ta_changelog').val("");
+        setTimeout("ciattr_modify()", 1000); 
+    }else if (modal_action == 2){
+        $("#modal_info").modal("hide");
+        location.reload();
+    }
+    modal_action = 0;
+}
+
+function ciattr_modify() {
+    var err_content = ""
+    var err_index = 0;
+    $.ajaxSettings.async = false;               //设置ajax同步执行
     for (item in update_ciattr)
     {
         var attr_fid = item;
         var attr_value = update_ciattr[item][0];
         var attr_des = update_ciattr[item][1];
-
-        var str_url = "/hostinfo";
+        
+        var str_url = "/ajax_ciattr";
         if (attr_fid == undefined)
         {
-            err_fid += "没有获取CIATTR_FID,故记录：value" + 
-                        attr_value + ", des" + 
-                        attr_des + "，无法进行更新操作";
             err_index += 1;
+            err_content += "<p>" + err_index +". 没有获取CIATTR_FID,故记录：value" + 
+                        attr_value + ", des" + 
+                        attr_des + "，无法进行更新操作</p>";
             continue;
         }
         
@@ -295,8 +320,10 @@ function submit_ciattr_changes()
         if (attr_value != undefined)
             str_url += "&value=" + attr_value;
         if (attr_des != undefined)
-            str_url += "&des=" + attr_des;
-        
+            str_url += "&description=" + attr_des;
+        if (changelog != "")
+            str_url += "&changelog=" + changelog;
+            
         $.ajax({
             type: "PUT",
             url: str_url,
@@ -306,17 +333,17 @@ function submit_ciattr_changes()
                 return;
             },
             error: function (msg) {
-                err_input += "更新操作失败-" + str_url + "\n";
                 err_index += 1;
+                err_content += "<p>" +err_index+". 更新操作失败-" + str_url + "</p>";
             },
         });
     }
     
-    if (err_index == 0)
-        alert("更新完成!");
+    if (err_index != 0)
+        $('#modal_content').html(err_content);
     else
-        alert("更新失败, 失败记录数：" + err_index + 
-            "详细情况如下：\n" + err_fid + "\n" + err_input);
-            
-    location.reload();
+        $('#modal_content').html("配置修改成功！");
+    
+    modal_action = 2;
+    
 }

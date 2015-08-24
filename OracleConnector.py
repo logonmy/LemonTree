@@ -36,6 +36,7 @@ class OracleConnector:
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
         return result
+
         
     
     def close(self):

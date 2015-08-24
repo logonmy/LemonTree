@@ -6,6 +6,10 @@ var ciattrfid_array = new Array();
 var ci_name = "";
 var ciattr_fid = "";
 
+//定义模态框对应的动作
+var modal_action = 0;
+var changelog = "";
+
 $(document).ready(function(){
     $cilist = $('#cifid_list').val().split(';');
     //因为页面中传过来的cilist是以；作为分割的，拼接的时候是以；开头的，顾以下标1开始
@@ -117,7 +121,7 @@ function changeToEdit(node, content){
         ciattr_fid_choosed = node.prev().children().attr("id");
     var node_html = node.html();  
     node.html("");
-    var inputObj = $("<input id='"+input_id+"' type='text'/></div>"); 
+    var inputObj = $("<input id='"+input_id+"' type='text' class='form-control'/></div>"); 
     //插入一个可编辑的 input对象
     inputObj.css("border","1").css("background-color",node.css("background-color"))
         .css("font-size",node.css("font-size")).css("height","120%")
@@ -210,30 +214,49 @@ function changeToEdit(node, content){
 function submit_ciattr_changes()
 {
     //弹出模态框，确认修改，并需要填写change log
-    $("#modal_modify").modal("show");
+    $("#modal_info").modal("show");
+    modal_action = 1;
+}
+
+//模态框中点击确定后触发的动作
+function modal_sure()
+{
+    //显示changelog时，点击确定的动作
+    if (modal_action == 1) {
+        changelog = $('#modal_ta_changelog').val();
+        while(changelog == "") {
+            $("#div_changelog").addClass("has-error");
+            modal_sure();
+        }
+        $('#modal_content').html("开始修改配置...");
+        $('#modal_ta_changelog').val("");
+        setTimeout("ciattr_modify()", 1000); 
+    }else if (modal_action == 2){
+        $("#modal_info").modal("hide");
+        location.reload();
+    }
+    modal_action = 0;
 }
 
 //点击模态框的确定按钮后，执行修改操作
-function modal_changelog()
+function ciattr_modify()
 {
-    var err_input
-    var err_fid = ""
+    var err_content
     var err_index = 0;
-    var attr_changelog = $("#modal_ta_changelog").val();//模态框中textarea的值
-    
+    $.ajaxSettings.async = false;               //设置ajax同步执行
     for (item in update_ciattr)
     {
         var attr_fid = item;
         var attr_value = update_ciattr[item][0];
         var attr_des = update_ciattr[item][1];
 
-        var str_url = "/baselineinfo";
+        var str_url = "/ajax_ciattr";
         if (attr_fid == undefined)
         {
-            err_fid += "没有获取CIATTR_FID,故记录：value" + 
-                        attr_value + ", des" + 
-                        attr_des + "，无法进行更新操作";
             err_index += 1;
+            err_content += "<p>" + err_index+". 没有获取CIATTR_FID,故记录：value" + 
+                        attr_value + ", des" + 
+                        attr_des + "，无法进行更新操作</p>";
             continue;
         }
         
@@ -242,9 +265,8 @@ function modal_changelog()
         if (attr_value != undefined)
             str_url += "&value=" + attr_value;
         if (attr_des != undefined)
-            str_url += "&des=" + attr_des;
-        if (attr_changelog != undefined)
-            str_url += "&change_log=" + attr_changelog;
+            str_url += "&description=" + attr_des;
+        str_url += "&changelog=" + changelog;
         
         $.ajax({
             type: "PUT",
@@ -255,17 +277,17 @@ function modal_changelog()
                 return;
             },
             error: function (msg) {
-                err_input += "更新操作失败-" + str_url + "\n";
                 err_index += 1;
+                err_content += "<p>"+err_index+". 更新操作失败-" + str_url + "</p>";
+                
             },
         });
     }
     
-    if (err_index == 0)
-        alert("更新完成!");
+    if (err_index != 0)
+        $('#modal_content').html(err_content);
     else
-        alert("更新失败, 失败记录数：" + err_index + 
-            "详细情况如下：\n" + err_fid + "\n" + err_input);
-            
-    location.reload();
+        $('#modal_content').html("配置修改成功！");
+    modal_action = 2;
+
 }

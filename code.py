@@ -1,8 +1,7 @@
 #coding:utf-8
 import web
-import sys
+import sys, re, json
 import httplib, urllib
-import json
 from OracleConnector import OracleConnector
 
 ERR_URL_WITHTOUT_NECESSARY_ATTR = 1
@@ -18,6 +17,7 @@ urls = (
         '/baselinelist'     , 'baselinelist',
         '/baselineinfo'     , 'baselineinfo',
         '/addhost'          , 'addhost',
+        '/addbaseline'      , 'addbaseline',
         
         '/ajax_get_hostlist'    , 'cmdbAPI.ajax_get_hostlist',
         
@@ -27,18 +27,10 @@ urls = (
         '/ajax_citype'          , 'cmdbAPI.ajax_citype',
         '/ajax_cirelatype'      , 'cmdbAPI.ajax_cirelatype',
         '/ajax_ciattrtype'      , 'cmdbAPI.ajax_ciattrtype',
+
+        '/ajax_baselinelist'    , 'cmdbAPI.ajax_baselinelist',
         
-        '/ajax_get_ci_all_attr'      , 'cmdbAPI.ajax_get_ci_all_attr',
-        '/ajax_get_citype_all_attr'  , 'cmdbAPI.ajax_get_citype_all_attr',
-        
-        #'/ajax_get_citype'           , 'cmdbAPI.ajax_get_citype',
-        '/ajax_get_baseline_list'    , 'cmdbAPI.ajax_get_baseline_list',
-        '/ajax_get_baseline_osuser'  , 'cmdbAPI.ajax_get_baseline_osuser',
-        
-        '/ajax_copy_ci'              , 'cmdbAPI.ajax_copy_ci',
-        
-        '/ajax_post_ci' , 'cmdbAPI.ajax_post_ci',
-        '/ajax_post_attr', 'cmdbAPI.ajax_post_attr',
+        '/ajax_copy_ci'         , 'cmdbAPI.ajax_copy_ci',
        )
 
 
@@ -69,60 +61,31 @@ class hostinfo:
         #获取与该主机(CI)具有关系的所有CI项
         conn.request(method = "GET",url = "/cirela?sourcename=" + server.host)
         data = json.loads(conn.getresponse().read())
-
+        
         baselist = []                       #保存该主机应用的基线类型
         #保存该主机非基线TAG的CI Dict，其中，以CITYPE作为key，value为属于这个TYPE的CI组成的list
         ciDictWithoutTag = {}
         #遍历该CI项，将基线CI与非基线CI分别保存到不同的列表中
         for ci in data:
             conn.request(method = "GET",url = "/ci?family_id=" + ci["TARGET_FID"].encode('utf-8') )
-            resultCIList = json.loads(conn.getresponse().read())
-         
-            for each in resultCIList:
-                if each["TAG"]:
-                    baselist.append(each["TAG"])
-                else:
-                    if not ciDictWithoutTag.has_key(each['CITYPE_NAME']):
-                        ciDictWithoutTag[each['CITYPE_NAME']] = []
-                    ciDictWithoutTag[each['CITYPE_NAME']].append(each)
+            resultCI = json.loads(conn.getresponse().read())
+            
+            resultci = resultCI[0]
+            if resultci["TAG"]:
+                baselist.append(resultci["TAG"])
+            else:
+                if not ciDictWithoutTag.has_key(resultci['CITYPE_NAME']):
+                    ciDictWithoutTag[resultci['CITYPE_NAME']] = []
+                ciDictWithoutTag[resultci['CITYPE_NAME']].append(resultci)
                     
-        baselist = list(set(baselist))     
+        baselist = list(set(baselist))
         baselist = "|".join(baselist)
         
         list_citype = None
         dict_ci = None
         HttpConnectionClose(conn)
-        return render.hostinfo(baselist, ciDictWithoutTag, host = server.host)
 
-    def PUT(self):
-        url = "/ciattr"
-        token_init = 0
-        result = web.input(fid=None, value=None, des=None)
-        #页面无提交更新参数时，跳转到原页面
-        if result is None:
-            return web.template.render('templates/host/', base='layout').hostlist()
-        
-        page_attr = {'fid'          : result.fid,                   #CI attr family_id
-                     'value'        : result.value,
-                     'description'  : result.des, 
-                     }
-        
-        for key, value in page_attr.items() :
-            if value :
-                if token_init == 0:
-                    url += "?" + key + "=" + value
-                    token_init = 1
-                else:
-                    url += "&" + key + "=" + value
-        
-        conn  =  HttpConnectionInit()
-        conn.request(method = "PUT",url = url)
-        data = conn.getresponse().read()
-        HttpConnectionClose(conn)
-        #由于CMDB WEB API中post方法执行成功后返回值为ci attr的family id
-        if data.startswith("FCAD"):
-            status = 0;
-        return status
+        return render.hostinfo(baselist, ciDictWithoutTag, host = server.host)
     
 class hostlist:
     def GET(self):
@@ -148,7 +111,7 @@ class baselineinfo:
             return web.template.render('templates/host/', base='layout_info').baselinelist()
         
         #返回主机所有CI TYPE
-        url_ci = "/ci?tag=" + result.type
+        url_ci = "/ci?tag=BASELINE:" + result.type
         conn  =  HttpConnectionInit()
         conn.request(method = "GET",url = url_ci)
         data = json.loads(conn.getresponse().read())
@@ -165,46 +128,24 @@ class baselineinfo:
         if title is None:
             title = result.type
         HttpConnectionClose(conn)
-        return render.baselineinfo(displayname_list, title)
-    
-    def PUT(self):
-        url = "/ciattr"
-        token_init = 0
-        result = web.input(fid=None, value=None, des=None)
-        #页面无提交更新参数时，跳转到原页面
-        if result is None:
-            return web.template.render('templates/host/', base='layout_info').baselinelist()
-        
-        page_attr = {'fid'          : result.fid,                   #CI attr family_id
-                     'value'        : result.value,
-                     'description'  : result.des, 
-                     'change_log'   : result.change_log,
-                     }
-        
-        for key, value in page_attr.items() :
-            if value :
-                if token_init == 0:
-                    url += "?" + key + "=" + value
-                    token_init = 1
-                else:
-                    url += "&" + key + "=" + value
-        
-        conn  =  HttpConnectionInit()
-        conn.request(method = "PUT",url = url)
-        data = conn.getresponse().read()
-        HttpConnectionClose(conn)
-        #由于CMDB WEB API中post方法执行成功后返回值为ci attr的family id
-        if data.startswith("FCAD"):
-            status = 0;
-        return status
-        
+        return render.baselineinfo(displayname_list, title)        
         
 class addhost:
     def GET(self):
         render = web.template.render('templates/host/', base='layout_info')
         return render.addhost()
+    
+class addbaseline:
+    def GET(self):
+        render = web.template.render('templates/host/', base='layout_info')
+        urlCiType = "/citype?owner=OS"
+        conn  =  HttpConnectionInit()
+        conn.request(method = "GET",url = urlCiType)
+        citypelist = json.loads(conn.getresponse().read())
+        
+        
+        return render.addbaseline(citypelist)
          
- 
 if __name__ == "__main__":
     app = web.application(urls, globals())
     app.run()

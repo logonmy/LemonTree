@@ -9,6 +9,11 @@ $var osname: $host
 
 
 <div class="row">
+    <div id="div_cichange" style="display:none">
+        <input style="float:right" type="button" class="btn btn-success" value="保存" 
+            onclick="submit_cichanges()">
+    </div>
+    
     <blockquote>已适用基线</blockquote>
     <table class="table table-bordered" id="checkedBaseline" cellspacing="0" width="100%">
         <thead>
@@ -19,7 +24,7 @@ $var osname: $host
         </tr>
         </thead>
     </table>
-    </hr>
+    <hr>
 
 $for citype, cilist in ciDictWithoutTag.items():
     <blockquote>$citype</blockquote>
@@ -37,32 +42,33 @@ $for citype, cilist in ciDictWithoutTag.items():
             </tr>
             </thead>
         </table>
+        <hr>
     
 <input type="hidden" id="hiden_baselinelist" value="$baselist"/>
 <input type="hidden" id="hiden_cilist" value="$strci" />
 </div>
 
-<!--确认修改时，提示输入change log的模态框-->
-<div class="modal fade" id="modal_modify" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!--添加时，提示输入的模态框-->
+<div class="modal fade" id="modal_info" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div  class="modal-content">
             <div class="modal-header" style="height:50px">
                 <button type="button" class="close" data-dismiss="modal">
                     &times;
                 </button>
-                <font><h4>ChangeLog</h4></font>
+                <font><h4>确认操作</h4></font>
             </div><!--modal-header --> 
-            <div class="modal-body" style="height:25%" >
-                <div class="form-group">
+            <div class="modal-body" style="height:25%"id="modal_content" >
+                <div class="form-group"  id="div_changelog">
                 <font>改动日志</font><font color="red" size="1px">  *点击确定后将直接把改动提交至数据库</font>
                 <textarea id="modal_ta_changelog" class="form-control" rows="5" style= "resize:none; "></textarea>
-                </div>                     
+                </div>                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal" 
                     style="float:right">取消</button>
                 <button type="button" class="btn btn-success" style="float:right;margin-right:10px" 
-                    onclick="modal_changelog()">确定</button>
+                    onclick="modal_sure()">确定</button>
             </div>
         </div><!--modal-content -->
    </div><!--modal-dialog -->

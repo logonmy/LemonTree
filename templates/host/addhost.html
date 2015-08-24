@@ -15,13 +15,14 @@ $var cssfiles: ystep.css
             <div class="input-group  col-md-12"  style="margin-top:0%;height:45%;position:relative;">
                 <h3>步骤一:主机信息</h3>
             </div>
+
             <div class="col-md-12" style="margin-top:30px;">
                 <div class="col-md-2 col-md-offset-1">
                 <span  style="float:left;font-size:18px">主机名</span>
                 </div>
-                <div class="col-md-7" >
+                <div class="col-md-7" id="div_hostname">
                 <input type="text" class="form-control" placeholder="例如：config1" 
-                    id="step1_host_name">
+                    id="step1_hostname" name="FCIT00000001">
                 </div>
             </div>
             <div class="col-md-12" style="margin-top:20px;">
@@ -29,7 +30,7 @@ $var cssfiles: ystep.css
                 <span  style="float:left;font-size:18px" >操作系统版本</span>
                 </div>
                 <div class="col-md-7">
-                <select class="form-control input-md" id="osversion">
+                <select class="form-control input-md" id="select_osversion" name="FCAT00000002">
                     <option>--请选择OS版本--</option>
                     <option>RedHat Linux 5.5</option>
                     <option>RedHat Linux 6.3</option>
@@ -49,6 +50,8 @@ $var cssfiles: ystep.css
                 </div>
                 <br>
             </div>
+
+            
             <div style="margin-top:50px;" class="col-md-12" >
                 <div class="col-md-1 col-md-offset-4">
                 </div>
@@ -67,41 +70,56 @@ $var cssfiles: ystep.css
             </div>
 
             <div class="panel-heading " style="margin-top:40px;">
-                <button onclick="show_detail('adduser')" class="btn btn-primary" style="float:right">
+                <button onclick="btn_userdetail(this)" name="adduser" class="btn btn-primary" style="float:right">
                     新增用户</button>
             </div>
             <div style="margin-top:40px;">
-                <table id="baselineuserlist" class="table table-bordered" cellspacing="0" width="100%" >
+                <table id="table_userlist" class="table table-bordered" cellspacing="0" width="100%" >
                     <thead >
                         <tr class="active">
-                            <th> </th>
-                            <th width="30%">用户名</th>
-                            <th width="55%">描  述</th>
-                            <th>查看属性</th>
+                            <td width="30%">用户名</td>
+                            <td width="55%">描  述</td>
+                            <td></td>
+                            <td>操作</th>
                         </tr>
                     </thead>
                 </table>
             </div>
             <hr/>
-            <div style="display:none" id="add_user_div">
+            <div style="display:none" id="div_userci">
                 <blockquote><p>新增用户</p></blockquote>
-                <table  class="table table-bordered" id="add_user_table" cellspacing="0" width="100%" >
+                <form class="form-inline">
+                    <!--用户名称-->
+                    <div class="form-group" >
+                        <label class="sr-only"></label>
+                        <span  style="font-size:18px" >用户名称：</span>
+                    </div>
+                    <div class="form-group" id="div_ciname">
+                        <label class="sr-only"></label>
+                        <input type="text" class="form-control" placeholder="" id="input_username" style="margin-left:10px;">
+                    </div>
+                    <!--用户描述-->
+                    <div class="form-group" style="margin-left:40px;">
+                        <label class="sr-only"></label>
+                        <span  style="font-size:18px" >用户描述：</span>
+                    </div>
+                    <div class="form-group" id="div_cides">
+                        <label class="sr-only"></label>
+                        <input type="text" class="form-control" placeholder="" id="input_userdes" style="margin-left:10px;">
+                    </div>
+                </form>
+            </div>
+            <div style="display:none;margin-top:15px;" id="div_userattr">
+                <blockquote><p>用户属性</p></blockquote>
+                <table  class="table table-bordered" id="table_userattr" cellspacing="0" width="100%" >
                     <tr class="active">
                         <th>属性名称</th>
                         <th>属性值</th>
-                        <th>描  述</th>
-                        <th>属  主</th>
+                        <th>属性描述</th>
                     </tr>
-                    <tr>
-                        <td>用户名</td>
-                        <td><input type="text" id="adduser_ci_value" class="form-control"></td>
-                        <td><input type="text" id="adduser_ci_description"class="form-control"></td>
-                        <td><input type="text" id="adduser_ci_owner" class="form-control"></td>
-                    </tr>
-                    
                 </table>
-                <button  onclick="cancel_add_user()" class="btn btn-warning col-md-offset-10" > 取消 </button>
-                <button  onclick="submit_add_user()" class="btn btn-success" style="margin-left:2%" >保存</button>
+                <button onclick="cancel_adduser()" class="btn btn-warning col-md-offset-10" >取消</button>
+                <button onclick="submit_adduser()" class="btn btn-success" style="margin-left:2%" >保存</button>
             </div>
 
             <div style="margin-top:50px;" class="col-md-12" >
@@ -145,9 +163,9 @@ $var cssfiles: ystep.css
                 <table id="baselinelist" class="table table-bordered table-striped" cellspacing="0" width="100%" >
                     <thead >
                     <tr class="active">
-                        <th width="5%"> </th>
-                        <th width="30%">基线名称</th>
-                        <th>基线描述</th>
+                        <td width="5%"> </td>
+                        <td width="30%">基线名称</td>
+                        <td>基线描述</td>
                     </tr>
                     </thead>
                 </table>
@@ -191,7 +209,7 @@ $var cssfiles: ystep.css
                             </div>
                         </div>
                         <div class="form-group col-xs-12">
-                            <button onclick="show_configuration_kernel(table_kernellist)" type="button" class="btn btn-default"  style="float:right">添加配置</button>
+                            <button onclick="btn_additem(this)" name="btn_addkernel" type="button" class="btn btn-default"  style="float:right">添加配置</button>
                         </div>
                     </form>
                 </fieldset>
@@ -203,24 +221,6 @@ $var cssfiles: ystep.css
                             <td width="25%">参数值</td>
                             <td width="40%">参数描述</td>
                             <td>操作</td>
-                        </tr>
-                        <tr>
-                            <td width="25%">kernel.shmall</td>
-                            <td width="25%">16777216</td>
-                            <td width="40%">内存大小</td>
-                            <td><button type="button" class="btn btn-link" onclick="table_del()">删除</button></td>
-                        </tr>
-                        <tr>
-                            <td width="27%">kernel.shmall</td>
-                            <td width="28%">16777216</td>
-                            <td width="45%">内存大小</td>
-                            <td><button type="button" class="btn btn-link">删除</button></td>
-                        </tr>
-                        <tr>
-                            <td>kernel.shmall</td>
-                            <td>16777216</td>
-                            <td>内存大小</td>
-                            <td><button type="button" class="btn btn-link">删除</button></td>
                         </tr>
                     </table>
                 </div>
@@ -265,7 +265,7 @@ $var cssfiles: ystep.css
                             </div>
                         </div>
                         <div class="form-group col-xs-12">
-                            <button onclick="show_configuration_crontab('table_crontablist')" type="button" class="btn btn-default"  style="float:right">添加配置</button>
+                            <button onclick="btn_additem(this)" name="btn_addcron" type="button" class="btn btn-default"  style="float:right">添加配置</button>
                         </div>
                     </form>
                 </fieldset>
@@ -277,12 +277,6 @@ $var cssfiles: ystep.css
                             <td width="45%">任务描述</td>
                             <td>操作</td>
                         </tr>
-                        <tr>
-                            <td >30 2 * * * root ntpdate 192.168.1.1</td>
-                            <td >每日凌晨2点半进行始终同步</td>
-                            <td><button type="button" class="btn btn-link">删除</button></td>
-                        </tr>
-                        
                     </table>
                 </div>
             </div>
@@ -293,7 +287,7 @@ $var cssfiles: ystep.css
                         onclick="backtostep4()">上一步</button>
                 </div>
                 <div class="col-md-1 col-md-offset-2">
-                    <input type="button" class="btn btn-success" onclick="submit_add_host()" value="确认新增">
+                    <input type="button" class="btn btn-success" onclick="btn_createhost()" value="确认新增">
                 </div>
             </div>
         </div>
@@ -338,8 +332,7 @@ $var cssfiles: ystep.css
                     </button>
                     <font><h4>确认操作</h4></font>
                 </div><!--modal-header --> 
-                <div class="modal-body" style="height:25%" >
-                    确认删除该记录？
+                <div class="modal-body" style="height:25%"id="modal_content" >
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" 
